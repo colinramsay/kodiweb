@@ -12,11 +12,7 @@ module.exports = React.createClass({
     mixins: [FluxMixin, StoreWatchMixin("albumStore")],
 
     getStateFromFlux: function() {
-        var store = this.getFlux().store("albumStore");
-        return {
-            albums: store.albums,
-            loading: store.loading
-        };
+        return this.getFlux().store("albumStore").getState();
     },
     
     componentDidMount: function() {     
@@ -27,7 +23,7 @@ module.exports = React.createClass({
     render: function() {
         return <div>
             <Loading loading={this.state.loading} />
-            <Status />
+            <Status currentTrack={this.state.currentTrack} nowPlaying={this.state.nowPlaying} />
             <Albums albums={this.state.albums} />
         </div>
     }

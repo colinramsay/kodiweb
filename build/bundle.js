@@ -73,12 +73,25 @@
 	    initialize: function() {
 	        this.albums = [];
 	        this.loading = false;
+	        this.currentTrack = {};
+	        this.nowPlaying = {};
 	
 	        this.bindActions(
+	            constants.UPDATE_STATUS, this.onUpdateStatus,
 	            constants.GET_ALBUMS, this.onGetAlbums,
 	            constants.GET_ALBUMS_SUCCESS, this.onGetAlbumsSuccess,
 	            constants.GET_ALBUMS_FAILURE, this.onGetAlbumsFailure
 	        );
+	    },
+	
+	
+	    getState: function() {
+	        return {
+	            currentTrack: this.currentTrack,
+	            nowPlaying: this.nowPlaying,
+	            loading: this.loading,
+	            albums: this.albums
+	        };
 	    },
 	
 	
@@ -99,6 +112,12 @@
 	    onGetAlbumsSuccess: function(payload) {
 	        this.loading = false;
 	        this.albums = payload.albums;
+	        this.emit('change');
+	    },
+	
+	
+	    onUpdateStatus: function(payload) {
+	        jQuery.extend(this, payload);
 	        this.emit('change');
 	    }
 	});
@@ -137,9 +156,70 @@
 	        }.bind(this),
 	            function(payload) {
 	                this.dispatch(constants.GET_ALBUMS_FAILURE, payload);
-	            }
+	            }.bind(this)
 	        );
-	    }
+	    },
+	
+	
+	    updateTime: function() {
+	        var store = this.flux.store("albumStore"),
+	            isPlaying = store.currentTrack.track,
+	            time = store.nowPlaying.time;
+	
+	        // if(isPlaying) {
+	        //     this.dispatch(constants.UPDATE_STATUS, {
+	        //         currentTime: time + 1000
+	        //     });
+	        // }
+	    },
+	
+	
+	    getPlaylist: function() {
+	        if(this.kodi.Playlist) {
+	        this.kodi.Playlist.GetItems(
+	            {"playlistid":0,"properties":["title","album","artist","duration"]},
+	            function(payload) {
+	                if(!payload || !payload.items) {
+	                    return;
+	                }
+	                var store = this.flux.store("albumStore"),
+	                    track = payload.items[store.nowPlaying.currentPlaylistPosition];
+	
+	                if(!track) {
+	                    return;
+	                }
+	
+	                var artist = track.artist.length > 0 ? track.artist[0] : 'Unknown Artist';
+	
+	                if(artist.length === 0) {
+	                    artist = 'Unknown Artist';
+	                }
+	
+	                this.dispatch(constants.UPDATE_STATUS, {currentTrack:{
+	                    track: track.title,
+	                    album: track.album,
+	                    artist: artist
+	                }});
+	            }.bind(this)
+	        );
+	        }
+	    },
+	
+	
+	    getPlayerProperties: function() {
+	        if(this.kodi.Player) {
+	            this.kodi.Player.GetProperties({"playerid":0,"properties":["playlistid","speed","position","totaltime","time"]}, this.flux.actions.onGetPlayerProperties.bind(this));
+	        }
+	    },
+	    
+	
+	    onGetPlayerProperties: function(data) {
+	        this.dispatch(constants.UPDATE_STATUS, { nowPlaying: {
+	            time: data.time,
+	            maxTime: data.totaltime,
+	            currentPlaylistPosition: data.position
+	        }});
+	    } 
 	}
 
 /***/ },
@@ -163,11 +243,7 @@
 	    mixins: [FluxMixin, StoreWatchMixin("albumStore")],
 	
 	    getStateFromFlux: function() {
-	        var store = this.getFlux().store("albumStore");
-	        return {
-	            albums: store.albums,
-	            loading: store.loading
-	        };
+	        return this.getFlux().store("albumStore").getState();
 	    },
 	    
 	    componentDidMount: function() {     
@@ -178,7 +254,7 @@
 	    render: function() {
 	        return React.DOM.div(null, 
 	            Loading( {loading:this.state.loading} ),
-	            Status(null ),
+	            Status( {currentTrack:this.state.currentTrack, nowPlaying:this.state.nowPlaying} ),
 	            Albums( {albums:this.state.albums} )
 	        )
 	    }
@@ -229,6 +305,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = {
+	    UPDATE_STATUS: 'UPDATE_STATUS',
 	    GET_ALBUMS: 'GET_ALBUMS',
 	    GET_ALBUMS_SUCCESS: 'GET_ALBUMS_SUCCESS',
 	    GET_ALBUMS_FAILURE: 'GET_ALBUMS_FAILURE'
@@ -243,20 +320,19 @@
 
 	/** @jsx React.DOM */
 	var Controls = __webpack_require__(/*! ./controls */ 18),
-	    React = __webpack_require__(/*! react */ 5);
+	    React = __webpack_require__(/*! react */ 5),
+	    Fluxxor = __webpack_require__(/*! fluxxor */ 4),
+	    FluxChildMixin = Fluxxor.FluxChildMixin(React);
 	
 	module.exports = React.createClass({displayName: 'exports',
+	    mixins: [FluxChildMixin],
 	
-	    getInitialState: function() {
-	        return {
-	            currentTrack: null,
-	            currentArtist: null,
-	            currentAlbum: null,
-	            time: null,
-	            maxTime: null,
-	            currentPlaylistPosition: null
-	        }
+	    componentDidMount: function() {
+	        setInterval(this.getFlux().actions.getPlaylist, 5000);
+	        //setInterval(this.getFlux().actions.updateTime, 1000);
+	        setInterval(this.getFlux().actions.getPlayerProperties, 1000);
 	    },
+	
 	
 	    getMillisecondsFromTime: function(time) {
 	        var ms = time.milliseconds;
@@ -267,78 +343,22 @@
 	        return ms;
 	    },
 	
-	    onGetPlayerProperties: function(data) {
-	        this.setState({
-	            time: this.getMillisecondsFromTime(data.time),
-	            maxTime: this.getMillisecondsFromTime(data.totaltime),
-	            currentPlaylistPosition: data.position
-	        });
-	    },
-	
-	    onGetPlaylistItems: function(data) {
-	        var track = data.items[this.state.currentPlaylistPosition];
-	
-	        if(!track) {
-	            return;
-	        }
-	
-	        var artist = track.artist.length > 0 ? track.artist[0] : 'Unknown Artist';
-	
-	        if(artist.length === 0) {
-	            artist = 'Unknown Artist';
-	        }
-	
-	        this.setState({
-	            currentTrack: track.title,
-	            currentAlbum: track.album,
-	            currentArtist: artist
-	        });
-	    },
-	
-	    msToTime: function(milli){
-	        var milliseconds = milli % 1000;
-	        var seconds = Math.floor((milli / 1000) % 60);
-	        var minutes = Math.floor((milli / (60 * 1000)) % 60);
-	
-	        return minutes + ":" + seconds;
-	    },
-	
-	
-	    componentDidMount: function() {
-	        var me = this;
-	
-	        setInterval(function() {
-	            if(me.state.time) {
-	                if(me.state.time < me.state.maxTime) {
-	                    me.setState({
-	                        time: me.state.time + 1000
-	                    });
-	                }
-	            }
-	        }, 1000);
-	
-	        setInterval(function() {
-	            window.kodi.Player.GetProperties({"playerid":0,"properties":["playlistid","speed","position","totaltime","time"]}, me.onGetPlayerProperties);
-	        }, 10000);
-	
-	        setInterval(function() {
-	            window.kodi.Playlist.GetItems({"playlistid":0,"properties":["title","album","artist","duration"]}, me.onGetPlaylistItems);
-	        }, 10000);
-	    },
 	
 	    render: function() {
 	        var time = '',
-	            nowPlaying = 'Nothing Playing...';
+	            nowPlayingTxt = 'Nothing Playing...',
+	            track = this.props.currentTrack,
+	            nowPlaying = this.props.nowPlaying;
 	
-	        if(this.state.currentTrack) {
-	            nowPlaying = this.state.currentArtist + ' - ' + this.state.currentAlbum + ' - ' + this.state.currentTrack;
+	        if(track && track.track) {
+	            nowPlayingTxt = track.artist + ' - ' + track.album + ' - ' + track.track;
 	        }
 	
-	        if(this.state.maxTime) {
-	            time = this.msToTime(this.state.time) + '/' + this.msToTime(this.state.maxTime);
+	        if(nowPlaying && nowPlaying.maxTime) {
+	            time = this.getMillisecondsFromTime(nowPlaying.time) + '/' + this.getMillisecondsFromTime(nowPlaying.maxTime);
 	        }
 	
-	        return React.DOM.section( {className:"status"}, nowPlaying, " ", time, " ", Controls(null ))
+	        return React.DOM.section( {className:"status"}, nowPlayingTxt, " ", time, " ", Controls(null ))
 	    }
 	});
 
