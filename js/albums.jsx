@@ -13,6 +13,8 @@ var Albums = React.createClass({
                     albums: result.albums
                 });
             }
+            // move this
+            $('.loading').hide();
         }.bind(this);
 
         this.props.kodi.AudioLibrary.GetAlbums({

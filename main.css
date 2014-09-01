@@ -5,6 +5,41 @@ body {
   margin: 0;
 }
 
+
+
+
+@-webkit-keyframes halfspin {
+  to {
+    transform: rotate( 180deg );
+  }
+}
+.loading {
+  z-index: 100;
+  width: 24px;
+  height: 24px;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+}
+
+.loading:before {
+  display: block;
+  
+  width: 22px;
+  height: 22px;
+  
+  border-top: 2px solid #ccc;
+  border-right: 2px solid black;
+  border-left: 2px solid black;
+  border-bottom: 2px solid #ccc;
+  
+  content: "";
+  -webkit-animation: halfspin 0.75s ease infinite;
+  animation: halfspin 0.75s ease infinite;
+  border-radius: 100%;
+}
+
+
 .status {
   color: #CCC;
   background-color: rgba(0, 0, 0, 0.8);
@@ -18,7 +53,7 @@ body {
 }
 
 .albums {
-  margin: 50px 0 0 0;
+  margin: 60px 0 0 0;
   display: -webkit-flex;
    -webkit-flex-flow: row wrap;
    flex-flow: row wrap;

@@ -12,10 +12,19 @@ var Status = React.createClass({
         }
     },
 
+    getMillisecondsFromTime: function(time) {
+        var ms = time.milliseconds;
+
+        ms = ms + time.seconds * 1000;
+        ms = ms + time.minutes * 60000;
+
+        return ms;
+    },
+
     onGetPlayerProperties: function(data) {
         this.setState({
-            time: data.time.minutes + ':' + data.time.seconds,
-            maxTime: data.totaltime.minutes + ':' + data.totaltime.seconds,
+            time: this.getMillisecondsFromTime(data.time),
+            maxTime: this.getMillisecondsFromTime(data.totaltime),
             currentPlaylistPosition: data.position
         });
     },
@@ -36,27 +45,49 @@ var Status = React.createClass({
         });
     },
 
+    msToTime: function(milli){
+        var milliseconds = milli % 1000;
+        var seconds = Math.floor((milli / 1000) % 60);
+        var minutes = Math.floor((milli / (60 * 1000)) % 60);
+
+        return minutes + ":" + seconds;
+    },
+
+
     componentDidMount: function() {
         var me = this;
 
         setInterval(function() {
+            if(me.state.time) {
+                if(me.state.time < me.state.maxTime) {
+                    me.setState({
+                        time: me.state.time + 1000
+                    });
+                }
+            }
+        }, 1000);
+
+        setInterval(function() {
             window.kodi.Player.GetProperties({"playerid":0,"properties":["playlistid","speed","position","totaltime","time"]}, me.onGetPlayerProperties);
-        }, 3000);
+        }, 10000);
 
         setInterval(function() {
             window.kodi.Playlist.GetItems({"playlistid":0,"properties":["title","album","artist","duration"]}, me.onGetPlaylistItems);
-        }, 1000);
+        }, 10000);
     },
 
     render: function() {
-        var time = '';
+        var time = '',
+            nowPlaying = 'Nothing Playing...';
 
-        if(this.state.maxTime) {
-            time = this.state.time + '/' + this.state.maxTime;
+        if(this.state.currentTrack) {
+            nowPlaying = this.state.currentArtist + ' - ' + this.state.currentAlbum + ' - ' + this.state.currentTrack;
         }
 
-        return <section className="status">
-            {this.state.currentArtist} - {this.state.currentAlbum} - {this.state.currentTrack} {time}
-        </section>
+        if(this.state.maxTime) {
+            time = this.msToTime(this.state.time) + '/' + this.msToTime(this.state.maxTime);
+        }
+
+        return <section className="status">{nowPlaying} {time} <Controls /></section>
     }
 });
