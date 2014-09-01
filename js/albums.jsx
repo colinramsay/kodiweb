@@ -8,7 +8,14 @@ module.exports = React.createClass({
         }
     },
 
-    componentDidMount: function() {          
+    componentDidUpdate: function() {
+        jQuery("img.lazy").lazy({
+            bind: 'event'
+        });
+    },
+
+    componentDidMount: function() {     
+
         var callback = function(result) {
             if (this.isMounted()) {
                 this.setState({
@@ -35,7 +42,7 @@ module.exports = React.createClass({
                 artist = 'Unknown Artist';
             }
 
-            return <li key={album.albumid}><img src={img} /><div><p>{artist}</p><p>{album.title}</p></div></li>
+            return <li key={album.albumid}><img className="lazy" data-src={img} src="" /><div><p>{artist}</p><p>{album.title}</p></div></li>
         });
         
         return <ul className="albums">{albums}</ul>
