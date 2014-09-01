@@ -1,5 +1,7 @@
 /** @jsx React.DOM */
-var Albums = React.createClass({
+var React = require('react');
+
+module.exports = React.createClass({
     getInitialState: function() {
         return {
             albums: []

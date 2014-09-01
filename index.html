@@ -3,37 +3,16 @@
   <head>
     <title>Kodiweb</title>
     <script src="build/jquery-2.1.1.min.js"></script>
-    <script src="build/react.js"></script>
-    <script src="build/JSXTransformer.js"></script>
     <script type="text/javascript" src="js/XbmcWebSocketsApi.js"></script>
     <script type="text/javascript" src="js/XbmcHttpApi.js"></script>
     <script type="text/javascript" src="js/XbmcCachedQueryController.js"></script>
     <script type="text/javascript" src="js/XbmcController.js"></script>
-    <script type="text/jsx" src="js/controls.jsx"></script>
-    <script type="text/jsx" src="js/status.jsx"></script>
-    <script type="text/jsx" src="js/albums.jsx"></script>
+    <script type="text/javascript" src="build/bundle.js"></script>
     <link rel="stylesheet" type="text/css" href="main.css">
   </head>
   <body>
     <div class="loading"></div>
     <div class="media"></div>
-    <script type="text/javascript">
-      
-    </script>
-
-    <script type="text/jsx">
-      /** @jsx React.DOM */
-      window.kodi = new Xbmc.Controller({
-        host:'pi.local', port: 80,
-        onInit: function() {
-          React.renderComponent(
-            <div><Status kodi={window.kodi} /><Albums kodi={window.kodi} /></div>,
-            document.getElementsByClassName('media')[0]
-          );    
-        }
-      });
-      
-    </script>
   </body>
 </html>
 

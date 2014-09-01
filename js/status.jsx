@@ -1,5 +1,8 @@
 /** @jsx React.DOM */
-var Status = React.createClass({
+var Controls = require('./controls'),
+    React = require('react');
+
+module.exports = React.createClass({
 
     getInitialState: function() {
         return {
@@ -31,6 +34,10 @@ var Status = React.createClass({
 
     onGetPlaylistItems: function(data) {
         var track = data.items[this.state.currentPlaylistPosition];
+
+        if(!track) {
+            return;
+        }
 
         var artist = track.artist.length > 0 ? track.artist[0] : 'Unknown Artist';
 

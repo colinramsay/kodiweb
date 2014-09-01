@@ -1,0 +1,11 @@
+{
+  "name": "kodiweb",
+  "version": "0.0.1",
+  "description": "Alternative web UI for kodi AKA XBMC",
+  "author": "Colin Ramsay",
+  "dependencies": {
+    "webpack": "~1.4.0-beta2",
+    "jsx-loader": "~0.10.2",
+    "react": "0.11.0"
+  }
+}

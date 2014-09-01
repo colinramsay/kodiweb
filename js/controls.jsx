@@ -1,5 +1,7 @@
 /** @jsx React.DOM */
-var Controls = React.createClass({
+var React = require('react');
+
+module.exports = React.createClass({
     render: function() {
         return <button>Play / Pause</button>
     }
