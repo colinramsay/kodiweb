@@ -4,8 +4,9 @@
   "description": "Alternative web UI for kodi AKA XBMC",
   "author": "Colin Ramsay",
   "dependencies": {
-    "webpack": "~1.4.0-beta2",
+    "fluxxor": "^1.4.0",
     "jsx-loader": "~0.10.2",
-    "react": "0.11.0"
+    "react": "0.11.0",
+    "webpack": "~1.4.0-beta2"
   }
 }
