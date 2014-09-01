@@ -2,6 +2,17 @@
 var React = require('react');
 
 module.exports = React.createClass({
+
+    onGetAlbums: function(result) {
+        if (this.isMounted()) {
+            this.setState({
+                albums: result.albums
+            });
+        }
+        // move this
+        $('.loading').hide();
+    },
+
     getInitialState: function() {
         return {
             albums: []
@@ -16,21 +27,11 @@ module.exports = React.createClass({
 
     componentDidMount: function() {     
 
-        var callback = function(result) {
-            if (this.isMounted()) {
-                this.setState({
-                    albums: result.albums
-                });
-            }
-            // move this
-            $('.loading').hide();
-        }.bind(this);
-
         this.props.kodi.AudioLibrary.GetAlbums({
                 "limits":{"start":0},
                 "properties":["artist","title","thumbnail"],
                 "sort":{"method":"artist"}
-        }, callback);
+        }, this.onGetAlbums);
     },
 
     render: function() {
