@@ -10,6 +10,8 @@ module.exports = Fluxxor.createStore({
 
         this.bindActions(
             constants.UPDATE_STATUS, this.onUpdateStatus,
+            constants.PAUSE, this.onUpdateStatus,
+            constants.PLAY, this.onUpdateStatus,
             constants.GET_ALBUMS, this.onGetAlbums,
             constants.GET_ALBUMS_SUCCESS, this.onGetAlbumsSuccess,
             constants.GET_ALBUMS_FAILURE, this.onGetAlbumsFailure
@@ -19,6 +21,7 @@ module.exports = Fluxxor.createStore({
 
     getState: function() {
         return {
+            isPlaying: this.isPlaying,
             currentTrack: this.currentTrack,
             nowPlaying: this.nowPlaying,
             loading: this.loading,
@@ -50,6 +53,14 @@ module.exports = Fluxxor.createStore({
 
     onUpdateStatus: function(payload) {
         jQuery.extend(this, payload);
+
+        if(payload.nowPlaying) {
+            if($.isNumeric(payload.nowPlaying.speed)) {
+                this.isPlaying = payload.nowPlaying.speed > 0;
+            } else {
+                this.isPlaying = false;
+            }
+        }
         this.emit('change');
     }
 });

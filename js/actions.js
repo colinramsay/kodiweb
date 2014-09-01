@@ -2,6 +2,18 @@ var constants = require('./constants');
 
 module.exports = {
 
+    pause: function() {
+        this.dispatch(constants.PAUSE, { speed: 0 });
+        this.kodi.Player.PlayPause({playerid : 0, play: false})
+    },
+
+
+    play: function() {
+        this.dispatch(constants.PLAY, { speed: 1 });
+        this.kodi.Player.PlayPause({playerid : 0, play: true })
+    },
+
+
     initialize: function() {
         this.kodi = new Xbmc.Controller({
             host:'pi.local',
@@ -86,7 +98,8 @@ module.exports = {
         this.dispatch(constants.UPDATE_STATUS, { nowPlaying: {
             time: data.time,
             maxTime: data.totaltime,
-            currentPlaylistPosition: data.position
+            currentPlaylistPosition: data.position,
+            speed: data.speed
         }});
     } 
 }

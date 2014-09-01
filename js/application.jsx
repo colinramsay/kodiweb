@@ -23,7 +23,7 @@ module.exports = React.createClass({
     render: function() {
         return <div>
             <Loading loading={this.state.loading} />
-            <Status currentTrack={this.state.currentTrack} nowPlaying={this.state.nowPlaying} />
+            <Status currentTrack={this.state.currentTrack} nowPlaying={this.state.nowPlaying} isPlaying={this.state.isPlaying} />
             <Albums albums={this.state.albums} />
         </div>
     }

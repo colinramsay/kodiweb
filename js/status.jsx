@@ -30,14 +30,14 @@ module.exports = React.createClass({
             track = this.props.currentTrack,
             nowPlaying = this.props.nowPlaying;
 
-        if(track && track.track) {
+        if(this.props.isPlaying) {
             nowPlayingTxt = track.artist + ' - ' + track.album + ' - ' + track.track;
         }
 
-        if(nowPlaying && nowPlaying.maxTime) {
+        if(this.props.isPlaying) {
             time = this.getMillisecondsFromTime(nowPlaying.time) + '/' + this.getMillisecondsFromTime(nowPlaying.maxTime);
         }
 
-        return <section className="status">{nowPlayingTxt} {time} <Controls /></section>
+        return <section className="status">{nowPlayingTxt} {time} <Controls isPlaying={this.props.isPlaying} /></section>
     }
 });

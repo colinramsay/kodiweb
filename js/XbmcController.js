@@ -637,7 +637,10 @@ Xbmc.Player = function(id, type, xbmcController, playlist) {
         _xbmc.Player.Stop({playerid : id}, null, false);
     };
     this.pause = function () {
-        _xbmc.Player.PlayPause({playerid : id}, null, false);
+        _xbmc.Player.PlayPause({playerid : id, play: false}, null, false);
+    };
+    this.play = function () {
+        _xbmc.Player.PlayPause({playerid : id, play: true}, null, false);
     };
     this.back = function () {
         _xbmc.Player.GoTo({
