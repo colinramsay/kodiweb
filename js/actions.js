@@ -42,47 +42,18 @@ module.exports = {
     },
 
 
-    updateTime: function() {
-        var store = this.flux.store("albumStore"),
-            isPlaying = store.currentTrack.track,
-            time = store.nowPlaying.time;
-
-        // if(isPlaying) {
-        //     this.dispatch(constants.UPDATE_STATUS, {
-        //         currentTime: time + 1000
-        //     });
-        // }
-    },
-
-
     getPlaylist: function() {
         if(this.kodi.Playlist) {
-        this.kodi.Playlist.GetItems(
-            {"playlistid":0,"properties":["title","album","artist","duration"]},
-            function(payload) {
-                if(!payload || !payload.items) {
-                    return;
-                }
-                var store = this.flux.store("albumStore"),
-                    track = payload.items[store.nowPlaying.currentPlaylistPosition];
+            this.kodi.Playlist.GetItems(
+                {"playlistid":0,"properties":["title","album","artist","duration"]},
+                function(payload) {
+                    var store = this.flux.store("albumStore");
 
-                if(!track) {
-                    return;
-                }
-
-                var artist = track.artist.length > 0 ? track.artist[0] : 'Unknown Artist';
-
-                if(artist.length === 0) {
-                    artist = 'Unknown Artist';
-                }
-
-                this.dispatch(constants.UPDATE_STATUS, {currentTrack:{
-                    track: track.title,
-                    album: track.album,
-                    artist: artist
-                }});
-            }.bind(this)
-        );
+                    this.dispatch(constants.UPDATE_STATUS, {
+                        currentTrack: payload.items[store.nowPlaying.currentPlaylistPosition]
+                    });
+                }.bind(this)
+            );
         }
     },
 
