@@ -5,8 +5,11 @@ var React = require('react'),
     Status = require('./status'),
     Albums = require('./albums'),
     Loading = require('./loading'),
+    Menu = require('./menu'),
     FluxMixin = Fluxxor.FluxMixin(React),
     StoreWatchMixin = Fluxxor.StoreWatchMixin;
+
+require('../css/main.css');
 
 module.exports = React.createClass({
     mixins: [FluxMixin, StoreWatchMixin("albumStore")],
@@ -25,6 +28,7 @@ module.exports = React.createClass({
             <Loading loading={this.state.loading} />
             <Status currentTrack={this.state.currentTrack} nowPlaying={this.state.nowPlaying} isPlaying={this.state.isPlaying} />
             <Albums albums={this.state.albums} />
+            <Menu />
         </div>
     }
 });
