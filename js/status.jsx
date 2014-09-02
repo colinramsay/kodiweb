@@ -48,7 +48,7 @@ module.exports = React.createClass({
             nowPlayingTxt = artist + ' - ' + track.album + ' - ' + track.title;
         }
 
-        if(this.props.isPlaying) {
+        if(nowPlaying && nowPlaying.time) {
             time = this.msToTime(this.getMillisecondsFromTime(nowPlaying.time)) + '/' + this.msToTime(this.getMillisecondsFromTime(nowPlaying.maxTime));
         }
 
