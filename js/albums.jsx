@@ -24,6 +24,6 @@ module.exports = React.createClass({
             return <li onClick={this.onAlbumClick} data-album-id={album.albumid} key={album.albumid}><img className="lazy" src={img} /><div><p>{artist}</p><p>{album.title}</p></div></li>
         }.bind(this));
         
-        return <ul className="albums">{albums}</ul>
+        return <p>alb<ul className="albums">{albums}</ul></p>
     }
 });

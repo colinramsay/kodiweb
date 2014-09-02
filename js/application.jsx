@@ -3,7 +3,6 @@
 var React = require('react'),
     Fluxxor = require('fluxxor'),
     Status = require('./status'),
-    Albums = require('./albums'),
     Loading = require('./loading'),
     Menu = require('./menu'),
     FluxMixin = Fluxxor.FluxMixin(React),
@@ -24,10 +23,11 @@ module.exports = React.createClass({
 
 
     render: function() {
+        var active = this.props.activeRouteHandler({albums: this.state.albums});
         return <div>
             <Loading loading={this.state.loading} />
             <Status currentTrack={this.state.currentTrack} nowPlaying={this.state.nowPlaying} isPlaying={this.state.isPlaying} />
-            <Albums albums={this.state.albums} />
+            {active}
             <Menu />
         </div>
     }
