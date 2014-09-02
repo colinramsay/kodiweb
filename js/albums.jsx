@@ -12,13 +12,6 @@ module.exports = React.createClass({
     },
 
 
-    componentDidUpdate: function() {
-        jQuery("img.lazy").lazy({
-            bind: 'event'
-        });
-    },
-
-
     render: function() {
         var albums = this.props.albums.map(function(album) {
             var img = album.thumbnail ? 'http://pi.local/image/' + encodeURI(album.thumbnail) : 'images/album-placeholder.png';
@@ -28,7 +21,7 @@ module.exports = React.createClass({
                 artist = 'Unknown Artist';
             }
 
-            return <li onClick={this.onAlbumClick} data-album-id={album.albumid} key={album.albumid}><img className="lazy" data-src={img} src="" /><div><p>{artist}</p><p>{album.title}</p></div></li>
+            return <li onClick={this.onAlbumClick} data-album-id={album.albumid} key={album.albumid}><img className="lazy" src={img} /><div><p>{artist}</p><p>{album.title}</p></div></li>
         }.bind(this));
         
         return <ul className="albums">{albums}</ul>
