@@ -70,6 +70,10 @@ body {
   border: 2px solid #ddd;
 }
 
+.albums li:hover {
+  cursor: pointer;
+}
+
 .albums li div {
   position: absolute;
   bottom: 0;

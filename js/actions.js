@@ -2,6 +2,21 @@ var constants = require('./constants');
 
 module.exports = {
 
+    playAlbum: function(albumId) {
+
+        albumId = parseInt(albumId);
+
+        var afterAdd = function() {
+            this.kodi.Player.Open({ item: { playlistid: 0, position: 0 }});
+        }.bind(this);
+
+        var afterClear = function() {
+            this.kodi.Playlist.Add({ playlistid: 0, item: { albumid: albumId }}, afterAdd);
+        }.bind(this);
+
+        this.kodi.Playlist.Clear({ playlistid: 0 }, afterClear);
+    },
+
     pause: function() {
         this.dispatch(constants.PAUSE, { speed: 0 });
         this.kodi.Player.PlayPause({playerid : 0, play: false})
@@ -49,9 +64,11 @@ module.exports = {
                 function(payload) {
                     var store = this.flux.store("albumStore");
 
-                    this.dispatch(constants.UPDATE_STATUS, {
-                        currentTrack: payload.items[store.nowPlaying.currentPlaylistPosition]
-                    });
+                    if(payload.items) {
+                        this.dispatch(constants.UPDATE_STATUS, {
+                            currentTrack: payload.items[store.nowPlaying.currentPlaylistPosition]
+                        });
+                    }
                 }.bind(this)
             );
         }

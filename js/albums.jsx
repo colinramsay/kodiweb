@@ -1,7 +1,16 @@
 /** @jsx React.DOM */
-var React = require('react');
+var React = require('react'),
+    Fluxxor = require("fluxxor"),
+    FluxChildMixin = Fluxxor.FluxChildMixin(React);
 
 module.exports = React.createClass({
+    mixins: [FluxChildMixin],
+
+    onAlbumClick: function(event) {
+        var albumId = event.currentTarget.getAttribute('data-album-id');
+        this.getFlux().actions.playAlbum(albumId);
+    },
+
 
     componentDidUpdate: function() {
         jQuery("img.lazy").lazy({
@@ -19,8 +28,8 @@ module.exports = React.createClass({
                 artist = 'Unknown Artist';
             }
 
-            return <li key={album.albumid}><img className="lazy" data-src={img} src="" /><div><p>{artist}</p><p>{album.title}</p></div></li>
-        });
+            return <li onClick={this.onAlbumClick} data-album-id={album.albumid} key={album.albumid}><img className="lazy" data-src={img} src="" /><div><p>{artist}</p><p>{album.title}</p></div></li>
+        }.bind(this));
         
         return <ul className="albums">{albums}</ul>
     }
