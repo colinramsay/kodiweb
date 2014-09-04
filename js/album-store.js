@@ -7,6 +7,7 @@ module.exports = Fluxxor.createStore({
         this.loading = false;
         
         this.bindActions(
+            constants.PLAY_ALBUM, this.onPlayAlbum,
             constants.GET_ALBUMS, this.onGetAlbums,
             constants.GET_ALBUMS_SUCCESS, this.onGetAlbumsSuccess,
             constants.GET_ALBUMS_FAILURE, this.onGetAlbumsFailure
@@ -16,12 +17,15 @@ module.exports = Fluxxor.createStore({
 
     getState: function() {
         return {
-            isPlaying: this.isPlaying,
-            currentTrack: this.currentTrack,
-            nowPlaying: this.nowPlaying,
-            loading: this.loading,
+            currentAlbumId: this.currentAlbumId,
             albums: this.albums
         };
+    },
+
+
+    onPlayAlbum: function(payload) {
+        this.currentAlbumId = payload;
+        this.emit('change');
     },
 
 

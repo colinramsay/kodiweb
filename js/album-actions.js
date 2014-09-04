@@ -4,6 +4,8 @@ module.exports = {
 
     playAlbum: function(albumId) {
 
+        this.dispatch(constants.PLAY_ALBUM, albumId);
+        
         albumId = parseInt(albumId);
 
         var afterAdd = function() {

@@ -14,8 +14,11 @@ module.exports = React.createClass({
 
 
     getStateFromFlux: function() {
+        var store = this.getFlux().store("album").getState();
+
         return {
-            albums: this.getFlux().store("album").getState().albums
+            albums: store.albums,
+            currentAlbumId: store.currentAlbumId
         }
     },
 
@@ -29,7 +32,7 @@ module.exports = React.createClass({
                 artist = 'Unknown Artist';
             }
 
-            return <li onClick={this.onAlbumClick} data-album-id={album.albumid} key={album.albumid}><img className="lazy" src={img} /><div><p>{artist}</p><p>{album.title}</p></div></li>
+            return <li onClick={this.onAlbumClick} className={album.albumid == this.state.currentAlbumId ? 'playing' : ''} data-album-id={album.albumid} key={album.albumid}><img className="lazy" src={img} /><div><p>{artist}</p><p>{album.title}</p></div></li>
         }.bind(this));
         
         return <p>alb<ul className="albums">{albums}</ul></p>

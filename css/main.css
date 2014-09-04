@@ -67,6 +67,10 @@ body {
   border: 2px solid #ddd;
 }
 
+.albums li.playing {
+  border: 2px solid #9AA330;  
+}
+
 .albums li:hover {
   cursor: pointer;
 }

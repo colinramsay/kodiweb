@@ -104,6 +104,7 @@
 	        this.loading = false;
 	        
 	        this.bindActions(
+	            constants.PLAY_ALBUM, this.onPlayAlbum,
 	            constants.GET_ALBUMS, this.onGetAlbums,
 	            constants.GET_ALBUMS_SUCCESS, this.onGetAlbumsSuccess,
 	            constants.GET_ALBUMS_FAILURE, this.onGetAlbumsFailure
@@ -113,12 +114,15 @@
 	
 	    getState: function() {
 	        return {
-	            isPlaying: this.isPlaying,
-	            currentTrack: this.currentTrack,
-	            nowPlaying: this.nowPlaying,
-	            loading: this.loading,
+	            currentAlbumId: this.currentAlbumId,
 	            albums: this.albums
 	        };
+	    },
+	
+	
+	    onPlayAlbum: function(payload) {
+	        this.currentAlbumId = payload;
+	        this.emit('change');
 	    },
 	
 	
@@ -201,6 +205,8 @@
 	
 	    playAlbum: function(albumId) {
 	
+	        this.dispatch(constants.PLAY_ALBUM, albumId);
+	        
 	        albumId = parseInt(albumId);
 	
 	        var afterAdd = function() {
@@ -371,8 +377,11 @@
 	
 	
 	    getStateFromFlux: function() {
+	        var store = this.getFlux().store("album").getState();
+	
 	        return {
-	            albums: this.getFlux().store("album").getState().albums
+	            albums: store.albums,
+	            currentAlbumId: store.currentAlbumId
 	        }
 	    },
 	
@@ -386,7 +395,7 @@
 	                artist = 'Unknown Artist';
 	            }
 	
-	            return React.DOM.li( {onClick:this.onAlbumClick, 'data-album-id':album.albumid, key:album.albumid}, React.DOM.img( {className:"lazy", src:img} ),React.DOM.div(null, React.DOM.p(null, artist),React.DOM.p(null, album.title)))
+	            return React.DOM.li( {onClick:this.onAlbumClick, className:album.albumid == this.state.currentAlbumId ? 'playing' : '', 'data-album-id':album.albumid, key:album.albumid}, React.DOM.img( {className:"lazy", src:img} ),React.DOM.div(null, React.DOM.p(null, artist),React.DOM.p(null, album.title)))
 	        }.bind(this));
 	        
 	        return React.DOM.p(null, "alb",React.DOM.ul( {className:"albums"}, albums))
@@ -459,6 +468,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = {
+	    PLAY_ALBUM: 'PLAY_ALBUM',
 	    UPDATE_STATUS: 'UPDATE_STATUS',
 	    GET_ALBUMS: 'GET_ALBUMS',
 	    GET_ALBUMS_SUCCESS: 'GET_ALBUMS_SUCCESS',
@@ -603,7 +613,7 @@
   \***************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(/*! ./modules/mixins/ActiveState */ 69);
+	module.exports = __webpack_require__(/*! ./modules/mixins/ActiveState */ 63);
 
 
 /***/ },
@@ -613,7 +623,7 @@
   \**************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(/*! ./modules/mixins/AsyncState */ 70);
+	module.exports = __webpack_require__(/*! ./modules/mixins/AsyncState */ 64);
 
 
 /***/ },
@@ -623,7 +633,7 @@
   \****************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(/*! ./modules/components/DefaultRoute */ 63);
+	module.exports = __webpack_require__(/*! ./modules/components/DefaultRoute */ 65);
 
 
 /***/ },
@@ -633,7 +643,7 @@
   \********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(/*! ./modules/components/Link */ 64);
+	module.exports = __webpack_require__(/*! ./modules/components/Link */ 66);
 
 
 /***/ },
@@ -643,7 +653,7 @@
   \*****************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(/*! ./modules/components/NotFoundRoute */ 65);
+	module.exports = __webpack_require__(/*! ./modules/components/NotFoundRoute */ 67);
 
 
 /***/ },
@@ -653,7 +663,7 @@
   \************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(/*! ./modules/components/Redirect */ 66);
+	module.exports = __webpack_require__(/*! ./modules/components/Redirect */ 68);
 
 
 /***/ },
@@ -663,7 +673,7 @@
   \*********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(/*! ./modules/components/Route */ 67);
+	module.exports = __webpack_require__(/*! ./modules/components/Route */ 69);
 
 
 /***/ },
@@ -673,7 +683,7 @@
   \**********************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__(/*! ./modules/components/Routes */ 68);
+	module.exports = __webpack_require__(/*! ./modules/components/Routes */ 70);
 
 
 /***/ },
@@ -1254,7 +1264,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports =
-		"body {\n  font-family: 'Helvetica Neue';\n  background: black;\n  padding: 0;\n  margin: 0;\n}\n\n@-webkit-keyframes halfspin {\n  to {\n    transform: rotate( 180deg );\n  }\n}\n.loading {\n  z-index: 100;\n  width: 24px;\n  height: 24px;\n  position: fixed;\n  top: 20px;\n  right: 20px;\n}\n\n.loading:before {\n  display: block;\n  \n  width: 22px;\n  height: 22px;\n  \n  border-top: 2px solid #ccc;\n  border-right: 2px solid black;\n  border-left: 2px solid black;\n  border-bottom: 2px solid #ccc;\n  \n  content: \"\";\n  -webkit-animation: halfspin 0.75s ease infinite;\n  animation: halfspin 0.75s ease infinite;\n  border-radius: 100%;\n}\n\n\n.status {\n  color: #CCC;\n  background-color: rgba(0, 0, 0, 0.8);\n  position: fixed;\n  z-index: 10;\n  width: 100%;\n  margin: 0;\n  padding: 20px 20px 20px 60px;\n  top: 0;\n  font-size: 14px;\n}\n\n.albums {\n  margin: 60px 0 0 0;\n  display: -webkit-flex;\n   -webkit-flex-flow: row wrap;\n   flex-flow: row wrap;\n   -webkit-justify-content: center;\n   justify-content: center;\n   padding: 0;\n}\n\n.albums li {\n  margin: 10px;\n  padding: 0;\n  list-style: none;\n  position: relative;\n  border: 2px solid #ddd;\n}\n\n.albums li:hover {\n  cursor: pointer;\n}\n\n.albums li div {\n  position: absolute;\n  bottom: 0;\n  width: 130px;\n  color: white;\n  font-size: 11px;\n  background-color:rgba(0,0,0,0.5);\n  padding: 10px;\n}\n.albums li div p {\n  margin: 0;\n}\n\n.albums li, .albums img {\n  width: 150px;\n  height: 150px;\n}";
+		"body {\n  font-family: 'Helvetica Neue';\n  background: black;\n  padding: 0;\n  margin: 0;\n}\n\n@-webkit-keyframes halfspin {\n  to {\n    transform: rotate( 180deg );\n  }\n}\n.loading {\n  z-index: 100;\n  width: 24px;\n  height: 24px;\n  position: fixed;\n  top: 20px;\n  right: 20px;\n}\n\n.loading:before {\n  display: block;\n  \n  width: 22px;\n  height: 22px;\n  \n  border-top: 2px solid #ccc;\n  border-right: 2px solid black;\n  border-left: 2px solid black;\n  border-bottom: 2px solid #ccc;\n  \n  content: \"\";\n  -webkit-animation: halfspin 0.75s ease infinite;\n  animation: halfspin 0.75s ease infinite;\n  border-radius: 100%;\n}\n\n\n.status {\n  color: #CCC;\n  background-color: rgba(0, 0, 0, 0.8);\n  position: fixed;\n  z-index: 10;\n  width: 100%;\n  margin: 0;\n  padding: 20px 20px 20px 60px;\n  top: 0;\n  font-size: 14px;\n}\n\n.albums {\n  margin: 60px 0 0 0;\n  display: -webkit-flex;\n   -webkit-flex-flow: row wrap;\n   flex-flow: row wrap;\n   -webkit-justify-content: center;\n   justify-content: center;\n   padding: 0;\n}\n\n.albums li {\n  margin: 10px;\n  padding: 0;\n  list-style: none;\n  position: relative;\n  border: 2px solid #ddd;\n}\n\n.albums li.playing {\n  border: 2px solid #9AA330;  \n}\n\n.albums li:hover {\n  cursor: pointer;\n}\n\n.albums li div {\n  position: absolute;\n  bottom: 0;\n  width: 130px;\n  color: white;\n  font-size: 11px;\n  background-color:rgba(0,0,0,0.5);\n  padding: 10px;\n}\n.albums li div p {\n  margin: 0;\n}\n\n.albums li, .albums img {\n  width: 150px;\n  height: 150px;\n}";
 
 /***/ },
 /* 38 */
@@ -7324,13 +7334,204 @@
 
 /***/ },
 /* 63 */
+/*!******************************************************!*\
+  !*** ./~/react-router/modules/mixins/ActiveState.js ***!
+  \******************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	var ActiveStore = __webpack_require__(/*! ../stores/ActiveStore */ 144);
+	
+	/**
+	 * A mixin for components that need to know about the routes, params,
+	 * and query that are currently active. Components that use it get two
+	 * things:
+	 *
+	 *   1. An `isActive` static method they can use to check if a route,
+	 *      params, and query are active.
+	 *   2. An `updateActiveState` instance method that is called when the
+	 *      active state changes.
+	 *
+	 * Example:
+	 *
+	 *   var Tab = React.createClass({
+	 *     
+	 *     mixins: [ Router.ActiveState ],
+	 *
+	 *     getInitialState: function () {
+	 *       return {
+	 *         isActive: false
+	 *       };
+	 *     },
+	 *   
+	 *     updateActiveState: function () {
+	 *       this.setState({
+	 *         isActive: Tab.isActive(routeName, params, query)
+	 *       })
+	 *     }
+	 *   
+	 *   });
+	 */
+	var ActiveState = {
+	
+	  statics: {
+	
+	    /**
+	     * Returns true if the route with the given name, URL parameters, and query
+	     * are all currently active.
+	     */
+	    isActive: ActiveStore.isActive
+	
+	  },
+	
+	  componentWillMount: function () {
+	    ActiveStore.addChangeListener(this.handleActiveStateChange);
+	  },
+	
+	  componentDidMount: function () {
+	    if (this.updateActiveState)
+	      this.updateActiveState();
+	  },
+	
+	  componentWillUnmount: function () {
+	    ActiveStore.removeChangeListener(this.handleActiveStateChange);
+	  },
+	
+	  handleActiveStateChange: function () {
+	    if (this.isMounted() && typeof this.updateActiveState === 'function')
+	      this.updateActiveState();
+	  }
+	
+	};
+	
+	module.exports = ActiveState;
+
+
+/***/ },
+/* 64 */
+/*!*****************************************************!*\
+  !*** ./~/react-router/modules/mixins/AsyncState.js ***!
+  \*****************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(/*! react */ 10);
+	var resolveAsyncState = __webpack_require__(/*! ../helpers/resolveAsyncState */ 136);
+	
+	/**
+	 * A mixin for route handler component classes that fetch at least
+	 * part of their state asynchronously. Classes that use it should
+	 * declare a static `getInitialAsyncState` method that fetches state
+	 * for a component after it mounts. This function is given three
+	 * arguments: 1) the current route params, 2) the current query and
+	 * 3) a function that can be used to set state as it is received.
+	 *
+	 * Much like the familiar `getInitialState` method, `getInitialAsyncState`
+	 * should return a hash of key/value pairs to use in the component's
+	 * state. The difference is that the values may be promises. As these
+	 * values resolve, the component's state is updated. You should only
+	 * ever need to use the setState function for doing things like
+	 * streaming data and/or updating progress.
+	 *
+	 * Example:
+	 *
+	 *   var User = React.createClass({
+	 *   
+	 *     statics: {
+	 *   
+	 *       getInitialAsyncState: function (params, query, setState) {
+	 *         // Return a hash with keys named after the state variables
+	 *         // you want to set, as you normally do in getInitialState,
+	 *         // except the values may be immediate values or promises.
+	 *         // The state is automatically updated as promises resolve.
+	 *         return {
+	 *           user: getUserByID(params.userID) // may be a promise
+	 *         };
+	 *   
+	 *         // Or, use the setState function to stream data!
+	 *         var buffer = '';
+	 *   
+	 *         return {
+	 *
+	 *           // Same as above, the stream state variable is set to the
+	 *           // value returned by this promise when it resolves.
+	 *           stream: getStreamingData(params.userID, function (chunk) {
+	 *             buffer += chunk;
+	 *   
+	 *             // Notify of progress.
+	 *             setState({
+	 *               streamBuffer: buffer
+	 *             });
+	 *           })
+	 *   
+	 *         };
+	 *       }
+	 *   
+	 *     },
+	 *   
+	 *     getInitialState: function () {
+	 *       return {
+	 *         user: null,        // Receives a value when getUserByID resolves.
+	 *         stream: null,      // Receives a value when getStreamingData resolves.
+	 *         streamBuffer: ''   // Used to track data as it loads.
+	 *       };
+	 *     },
+	 *   
+	 *     render: function () {
+	 *       if (!this.state.user)
+	 *         return <LoadingUser/>;
+	 *   
+	 *       return (
+	 *         <div>
+	 *           <p>Welcome {this.state.user.name}!</p>
+	 *           <p>So far, you've received {this.state.streamBuffer.length} data!</p>
+	 *         </div>
+	 *       );
+	 *     }
+	 *   
+	 *   });
+	 *
+	 * When testing, use the `initialAsyncState` prop to simulate asynchronous
+	 * data fetching. When this prop is present, no attempt is made to retrieve
+	 * additional state via `getInitialAsyncState`.
+	 */
+	var AsyncState = {
+	
+	  propTypes: {
+	    initialAsyncState: React.PropTypes.object
+	  },
+	
+	  getInitialState: function () {
+	    return this.props.initialAsyncState || null;
+	  },
+	
+	  updateAsyncState: function (state) {
+	    if (this.isMounted())
+	      this.setState(state);
+	  },
+	
+	  componentDidMount: function () {
+	    if (this.props.initialAsyncState || typeof this.constructor.getInitialAsyncState !== 'function')
+	      return;
+	
+	    resolveAsyncState(
+	      this.constructor.getInitialAsyncState(this.props.params, this.props.query, this.updateAsyncState),
+	      this.updateAsyncState
+	    );
+	  }
+	
+	};
+	
+	module.exports = AsyncState;
+
+
+/***/ },
+/* 65 */
 /*!***********************************************************!*\
   !*** ./~/react-router/modules/components/DefaultRoute.js ***!
   \***********************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	var merge = __webpack_require__(/*! react/lib/merge */ 86);
-	var Route = __webpack_require__(/*! ./Route */ 67);
+	var Route = __webpack_require__(/*! ./Route */ 69);
 	
 	/**
 	 * A <DefaultRoute> component is a special kind of <Route> that
@@ -7351,17 +7552,17 @@
 
 
 /***/ },
-/* 64 */
+/* 66 */
 /*!***************************************************!*\
   !*** ./~/react-router/modules/components/Link.js ***!
   \***************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(/*! react */ 10);
-	var ActiveState = __webpack_require__(/*! ../mixins/ActiveState */ 69);
+	var ActiveState = __webpack_require__(/*! ../mixins/ActiveState */ 63);
 	var transitionTo = __webpack_require__(/*! ../actions/LocationActions */ 71).transitionTo;
-	var withoutProperties = __webpack_require__(/*! ../helpers/withoutProperties */ 136);
-	var hasOwnProperty = __webpack_require__(/*! ../helpers/hasOwnProperty */ 137);
+	var withoutProperties = __webpack_require__(/*! ../helpers/withoutProperties */ 137);
+	var hasOwnProperty = __webpack_require__(/*! ../helpers/hasOwnProperty */ 138);
 	var makeHref = __webpack_require__(/*! ../helpers/makeHref */ 72);
 	var warning = __webpack_require__(/*! react/lib/warning */ 78);
 	
@@ -7529,14 +7730,14 @@
 
 
 /***/ },
-/* 65 */
+/* 67 */
 /*!************************************************************!*\
   !*** ./~/react-router/modules/components/NotFoundRoute.js ***!
   \************************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	var merge = __webpack_require__(/*! react/lib/merge */ 86);
-	var Route = __webpack_require__(/*! ./Route */ 67);
+	var Route = __webpack_require__(/*! ./Route */ 69);
 	
 	/**
 	 * A <NotFoundRoute> is a special kind of <Route> that
@@ -7558,14 +7759,14 @@
 
 
 /***/ },
-/* 66 */
+/* 68 */
 /*!*******************************************************!*\
   !*** ./~/react-router/modules/components/Redirect.js ***!
   \*******************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(/*! react */ 10);
-	var Route = __webpack_require__(/*! ./Route */ 67);
+	var Route = __webpack_require__(/*! ./Route */ 69);
 	
 	function createRedirectHandler(to) {
 	  return React.createClass({
@@ -7597,14 +7798,14 @@
 
 
 /***/ },
-/* 67 */
+/* 69 */
 /*!****************************************************!*\
   !*** ./~/react-router/modules/components/Route.js ***!
   \****************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(/*! react */ 10);
-	var withoutProperties = __webpack_require__(/*! ../helpers/withoutProperties */ 136);
+	var withoutProperties = __webpack_require__(/*! ../helpers/withoutProperties */ 137);
 	
 	/**
 	 * A map of <Route> component props that are reserved for use by the
@@ -7706,7 +7907,7 @@
 
 
 /***/ },
-/* 68 */
+/* 70 */
 /*!*****************************************************!*\
   !*** ./~/react-router/modules/components/Routes.js ***!
   \*****************************************************/
@@ -7717,16 +7918,16 @@
 	var copyProperties = __webpack_require__(/*! react/lib/copyProperties */ 143);
 	var Promise = __webpack_require__(/*! when/lib/Promise */ 212);
 	var LocationActions = __webpack_require__(/*! ../actions/LocationActions */ 71);
-	var Route = __webpack_require__(/*! ../components/Route */ 67);
-	var Path = __webpack_require__(/*! ../helpers/Path */ 138);
-	var Redirect = __webpack_require__(/*! ../helpers/Redirect */ 139);
-	var Transition = __webpack_require__(/*! ../helpers/Transition */ 140);
-	var HashLocation = __webpack_require__(/*! ../locations/HashLocation */ 144);
-	var HistoryLocation = __webpack_require__(/*! ../locations/HistoryLocation */ 145);
-	var RefreshLocation = __webpack_require__(/*! ../locations/RefreshLocation */ 146);
-	var ActiveStore = __webpack_require__(/*! ../stores/ActiveStore */ 147);
-	var PathStore = __webpack_require__(/*! ../stores/PathStore */ 148);
-	var RouteStore = __webpack_require__(/*! ../stores/RouteStore */ 149);
+	var Route = __webpack_require__(/*! ../components/Route */ 69);
+	var Path = __webpack_require__(/*! ../helpers/Path */ 139);
+	var Redirect = __webpack_require__(/*! ../helpers/Redirect */ 140);
+	var Transition = __webpack_require__(/*! ../helpers/Transition */ 141);
+	var HashLocation = __webpack_require__(/*! ../locations/HashLocation */ 147);
+	var HistoryLocation = __webpack_require__(/*! ../locations/HistoryLocation */ 148);
+	var RefreshLocation = __webpack_require__(/*! ../locations/RefreshLocation */ 149);
+	var ActiveStore = __webpack_require__(/*! ../stores/ActiveStore */ 144);
+	var PathStore = __webpack_require__(/*! ../stores/PathStore */ 145);
+	var RouteStore = __webpack_require__(/*! ../stores/RouteStore */ 146);
 	
 	/**
 	 * The ref name that can be used to reference the active route component.
@@ -8165,197 +8366,6 @@
 
 
 /***/ },
-/* 69 */
-/*!******************************************************!*\
-  !*** ./~/react-router/modules/mixins/ActiveState.js ***!
-  \******************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	var ActiveStore = __webpack_require__(/*! ../stores/ActiveStore */ 147);
-	
-	/**
-	 * A mixin for components that need to know about the routes, params,
-	 * and query that are currently active. Components that use it get two
-	 * things:
-	 *
-	 *   1. An `isActive` static method they can use to check if a route,
-	 *      params, and query are active.
-	 *   2. An `updateActiveState` instance method that is called when the
-	 *      active state changes.
-	 *
-	 * Example:
-	 *
-	 *   var Tab = React.createClass({
-	 *     
-	 *     mixins: [ Router.ActiveState ],
-	 *
-	 *     getInitialState: function () {
-	 *       return {
-	 *         isActive: false
-	 *       };
-	 *     },
-	 *   
-	 *     updateActiveState: function () {
-	 *       this.setState({
-	 *         isActive: Tab.isActive(routeName, params, query)
-	 *       })
-	 *     }
-	 *   
-	 *   });
-	 */
-	var ActiveState = {
-	
-	  statics: {
-	
-	    /**
-	     * Returns true if the route with the given name, URL parameters, and query
-	     * are all currently active.
-	     */
-	    isActive: ActiveStore.isActive
-	
-	  },
-	
-	  componentWillMount: function () {
-	    ActiveStore.addChangeListener(this.handleActiveStateChange);
-	  },
-	
-	  componentDidMount: function () {
-	    if (this.updateActiveState)
-	      this.updateActiveState();
-	  },
-	
-	  componentWillUnmount: function () {
-	    ActiveStore.removeChangeListener(this.handleActiveStateChange);
-	  },
-	
-	  handleActiveStateChange: function () {
-	    if (this.isMounted() && typeof this.updateActiveState === 'function')
-	      this.updateActiveState();
-	  }
-	
-	};
-	
-	module.exports = ActiveState;
-
-
-/***/ },
-/* 70 */
-/*!*****************************************************!*\
-  !*** ./~/react-router/modules/mixins/AsyncState.js ***!
-  \*****************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	var React = __webpack_require__(/*! react */ 10);
-	var resolveAsyncState = __webpack_require__(/*! ../helpers/resolveAsyncState */ 141);
-	
-	/**
-	 * A mixin for route handler component classes that fetch at least
-	 * part of their state asynchronously. Classes that use it should
-	 * declare a static `getInitialAsyncState` method that fetches state
-	 * for a component after it mounts. This function is given three
-	 * arguments: 1) the current route params, 2) the current query and
-	 * 3) a function that can be used to set state as it is received.
-	 *
-	 * Much like the familiar `getInitialState` method, `getInitialAsyncState`
-	 * should return a hash of key/value pairs to use in the component's
-	 * state. The difference is that the values may be promises. As these
-	 * values resolve, the component's state is updated. You should only
-	 * ever need to use the setState function for doing things like
-	 * streaming data and/or updating progress.
-	 *
-	 * Example:
-	 *
-	 *   var User = React.createClass({
-	 *   
-	 *     statics: {
-	 *   
-	 *       getInitialAsyncState: function (params, query, setState) {
-	 *         // Return a hash with keys named after the state variables
-	 *         // you want to set, as you normally do in getInitialState,
-	 *         // except the values may be immediate values or promises.
-	 *         // The state is automatically updated as promises resolve.
-	 *         return {
-	 *           user: getUserByID(params.userID) // may be a promise
-	 *         };
-	 *   
-	 *         // Or, use the setState function to stream data!
-	 *         var buffer = '';
-	 *   
-	 *         return {
-	 *
-	 *           // Same as above, the stream state variable is set to the
-	 *           // value returned by this promise when it resolves.
-	 *           stream: getStreamingData(params.userID, function (chunk) {
-	 *             buffer += chunk;
-	 *   
-	 *             // Notify of progress.
-	 *             setState({
-	 *               streamBuffer: buffer
-	 *             });
-	 *           })
-	 *   
-	 *         };
-	 *       }
-	 *   
-	 *     },
-	 *   
-	 *     getInitialState: function () {
-	 *       return {
-	 *         user: null,        // Receives a value when getUserByID resolves.
-	 *         stream: null,      // Receives a value when getStreamingData resolves.
-	 *         streamBuffer: ''   // Used to track data as it loads.
-	 *       };
-	 *     },
-	 *   
-	 *     render: function () {
-	 *       if (!this.state.user)
-	 *         return <LoadingUser/>;
-	 *   
-	 *       return (
-	 *         <div>
-	 *           <p>Welcome {this.state.user.name}!</p>
-	 *           <p>So far, you've received {this.state.streamBuffer.length} data!</p>
-	 *         </div>
-	 *       );
-	 *     }
-	 *   
-	 *   });
-	 *
-	 * When testing, use the `initialAsyncState` prop to simulate asynchronous
-	 * data fetching. When this prop is present, no attempt is made to retrieve
-	 * additional state via `getInitialAsyncState`.
-	 */
-	var AsyncState = {
-	
-	  propTypes: {
-	    initialAsyncState: React.PropTypes.object
-	  },
-	
-	  getInitialState: function () {
-	    return this.props.initialAsyncState || null;
-	  },
-	
-	  updateAsyncState: function (state) {
-	    if (this.isMounted())
-	      this.setState(state);
-	  },
-	
-	  componentDidMount: function () {
-	    if (this.props.initialAsyncState || typeof this.constructor.getInitialAsyncState !== 'function')
-	      return;
-	
-	    resolveAsyncState(
-	      this.constructor.getInitialAsyncState(this.props.params, this.props.query, this.updateAsyncState),
-	      this.updateAsyncState
-	    );
-	  }
-	
-	};
-	
-	module.exports = AsyncState;
-
-
-/***/ },
 /* 71 */
 /*!***********************************************************!*\
   !*** ./~/react-router/modules/actions/LocationActions.js ***!
@@ -8428,8 +8438,8 @@
   \****************************************************/
 /***/ function(module, exports, __webpack_require__) {
 
-	var HashLocation = __webpack_require__(/*! ../locations/HashLocation */ 144);
-	var PathStore = __webpack_require__(/*! ../stores/PathStore */ 148);
+	var HashLocation = __webpack_require__(/*! ../locations/HashLocation */ 147);
+	var PathStore = __webpack_require__(/*! ../stores/PathStore */ 145);
 	var makePath = __webpack_require__(/*! ./makePath */ 142);
 	
 	/**
@@ -16547,6 +16557,40 @@
 /***/ },
 /* 136 */
 /*!*************************************************************!*\
+  !*** ./~/react-router/modules/helpers/resolveAsyncState.js ***!
+  \*************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	var Promise = __webpack_require__(/*! when/lib/Promise */ 212);
+	
+	/**
+	 * Resolves all values in asyncState and calls the setState
+	 * function with new state as they resolve. Returns a promise
+	 * that resolves after all values are resolved.
+	 */
+	function resolveAsyncState(asyncState, setState) {
+	  if (asyncState == null)
+	    return Promise.resolve();
+	
+	  var keys = Object.keys(asyncState);
+	  
+	  return Promise.all(
+	    keys.map(function (key) {
+	      return Promise.resolve(asyncState[key]).then(function (value) {
+	        var newState = {};
+	        newState[key] = value;
+	        setState(newState);
+	      });
+	    })
+	  );
+	}
+	
+	module.exports = resolveAsyncState;
+
+
+/***/ },
+/* 137 */
+/*!*************************************************************!*\
   !*** ./~/react-router/modules/helpers/withoutProperties.js ***!
   \*************************************************************/
 /***/ function(module, exports, __webpack_require__) {
@@ -16566,7 +16610,7 @@
 
 
 /***/ },
-/* 137 */
+/* 138 */
 /*!**********************************************************!*\
   !*** ./~/react-router/modules/helpers/hasOwnProperty.js ***!
   \**********************************************************/
@@ -16576,7 +16620,7 @@
 
 
 /***/ },
-/* 138 */
+/* 139 */
 /*!************************************************!*\
   !*** ./~/react-router/modules/helpers/Path.js ***!
   \************************************************/
@@ -16751,7 +16795,7 @@
 
 
 /***/ },
-/* 139 */
+/* 140 */
 /*!****************************************************!*\
   !*** ./~/react-router/modules/helpers/Redirect.js ***!
   \****************************************************/
@@ -16770,7 +16814,7 @@
 
 
 /***/ },
-/* 140 */
+/* 141 */
 /*!******************************************************!*\
   !*** ./~/react-router/modules/helpers/Transition.js ***!
   \******************************************************/
@@ -16778,7 +16822,7 @@
 
 	var mixInto = __webpack_require__(/*! react/lib/mixInto */ 94);
 	var transitionTo = __webpack_require__(/*! ../actions/LocationActions */ 71).transitionTo;
-	var Redirect = __webpack_require__(/*! ./Redirect */ 139);
+	var Redirect = __webpack_require__(/*! ./Redirect */ 140);
 	
 	/**
 	 * Encapsulates a transition to a given path.
@@ -16813,40 +16857,6 @@
 
 
 /***/ },
-/* 141 */
-/*!*************************************************************!*\
-  !*** ./~/react-router/modules/helpers/resolveAsyncState.js ***!
-  \*************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	var Promise = __webpack_require__(/*! when/lib/Promise */ 212);
-	
-	/**
-	 * Resolves all values in asyncState and calls the setState
-	 * function with new state as they resolve. Returns a promise
-	 * that resolves after all values are resolved.
-	 */
-	function resolveAsyncState(asyncState, setState) {
-	  if (asyncState == null)
-	    return Promise.resolve();
-	
-	  var keys = Object.keys(asyncState);
-	  
-	  return Promise.all(
-	    keys.map(function (key) {
-	      return Promise.resolve(asyncState[key]).then(function (value) {
-	        var newState = {};
-	        newState[key] = value;
-	        setState(newState);
-	      });
-	    })
-	  );
-	}
-	
-	module.exports = resolveAsyncState;
-
-
-/***/ },
 /* 142 */
 /*!****************************************************!*\
   !*** ./~/react-router/modules/helpers/makePath.js ***!
@@ -16854,8 +16864,8 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var invariant = __webpack_require__(/*! react/lib/invariant */ 80);
-	var RouteStore = __webpack_require__(/*! ../stores/RouteStore */ 149);
-	var Path = __webpack_require__(/*! ./Path */ 138);
+	var RouteStore = __webpack_require__(/*! ../stores/RouteStore */ 146);
+	var Path = __webpack_require__(/*! ./Path */ 139);
 	
 	/**
 	 * Returns an absolute URL path created from the given route name, URL
@@ -16949,206 +16959,6 @@
 
 /***/ },
 /* 144 */
-/*!**********************************************************!*\
-  !*** ./~/react-router/modules/locations/HashLocation.js ***!
-  \**********************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	var invariant = __webpack_require__(/*! react/lib/invariant */ 80);
-	var ExecutionEnvironment = __webpack_require__(/*! react/lib/ExecutionEnvironment */ 61);
-	var getWindowPath = __webpack_require__(/*! ../helpers/getWindowPath */ 207);
-	
-	function getHashPath() {
-	  return window.location.hash.substr(1);
-	}
-	
-	function ensureSlash() {
-	  var path = getHashPath();
-	
-	  if (path.charAt(0) === '/')
-	    return true;
-	
-	  HashLocation.replace('/' + path);
-	
-	  return false;
-	}
-	
-	var _onChange;
-	
-	function handleHashChange() {
-	  if (ensureSlash())
-	    _onChange();
-	}
-	
-	/**
-	 * A Location that uses `window.location.hash`.
-	 */
-	var HashLocation = {
-	
-	  setup: function (onChange) {
-	    invariant(
-	      ExecutionEnvironment.canUseDOM,
-	      'You cannot use HashLocation in an environment with no DOM'
-	    );
-	
-	    _onChange = onChange;
-	
-	    ensureSlash();
-	
-	    if (window.addEventListener) {
-	      window.addEventListener('hashchange', handleHashChange, false);
-	    } else {
-	      window.attachEvent('onhashchange', handleHashChange);
-	    }
-	  },
-	
-	  teardown: function () {
-	    if (window.removeEventListener) {
-	      window.removeEventListener('hashchange', handleHashChange, false);
-	    } else {
-	      window.detachEvent('onhashchange', handleHashChange);
-	    }
-	  },
-	
-	  push: function (path) {
-	    window.location.hash = path;
-	  },
-	
-	  replace: function (path) {
-	    window.location.replace(getWindowPath() + '#' + path);
-	  },
-	
-	  pop: function () {
-	    window.history.back();
-	  },
-	
-	  getCurrentPath: getHashPath,
-	
-	  toString: function () {
-	    return '<HashLocation>';
-	  }
-	
-	};
-	
-	module.exports = HashLocation;
-
-
-/***/ },
-/* 145 */
-/*!*************************************************************!*\
-  !*** ./~/react-router/modules/locations/HistoryLocation.js ***!
-  \*************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	var invariant = __webpack_require__(/*! react/lib/invariant */ 80);
-	var ExecutionEnvironment = __webpack_require__(/*! react/lib/ExecutionEnvironment */ 61);
-	var getWindowPath = __webpack_require__(/*! ../helpers/getWindowPath */ 207);
-	
-	var _onChange;
-	
-	/**
-	 * A Location that uses HTML5 history.
-	 */
-	var HistoryLocation = {
-	
-	  setup: function (onChange) {
-	    invariant(
-	      ExecutionEnvironment.canUseDOM,
-	      'You cannot use HistoryLocation in an environment with no DOM'
-	    );
-	
-	    _onChange = onChange;
-	
-	    if (window.addEventListener) {
-	      window.addEventListener('popstate', _onChange, false);
-	    } else {
-	      window.attachEvent('popstate', _onChange);
-	    }
-	  },
-	
-	  teardown: function () {
-	    if (window.removeEventListener) {
-	      window.removeEventListener('popstate', _onChange, false);
-	    } else {
-	      window.detachEvent('popstate', _onChange);
-	    }
-	  },
-	
-	  push: function (path) {
-	    window.history.pushState({ path: path }, '', path);
-	    _onChange();
-	  },
-	
-	  replace: function (path) {
-	    window.history.replaceState({ path: path }, '', path);
-	    _onChange();
-	  },
-	
-	  pop: function () {
-	    window.history.back();
-	  },
-	
-	  getCurrentPath: getWindowPath,
-	
-	  toString: function () {
-	    return '<HistoryLocation>';
-	  }
-	
-	};
-	
-	module.exports = HistoryLocation;
-
-
-/***/ },
-/* 146 */
-/*!*************************************************************!*\
-  !*** ./~/react-router/modules/locations/RefreshLocation.js ***!
-  \*************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	var invariant = __webpack_require__(/*! react/lib/invariant */ 80);
-	var ExecutionEnvironment = __webpack_require__(/*! react/lib/ExecutionEnvironment */ 61);
-	var getWindowPath = __webpack_require__(/*! ../helpers/getWindowPath */ 207);
-	
-	/**
-	 * A Location that uses full page refreshes. This is used as
-	 * the fallback for HistoryLocation in browsers that do not
-	 * support the HTML5 history API.
-	 */
-	var RefreshLocation = {
-	
-	  setup: function () {
-	    invariant(
-	      ExecutionEnvironment.canUseDOM,
-	      'You cannot use RefreshLocation in an environment with no DOM'
-	    );
-	  },
-	
-	  push: function (path) {
-	    window.location = path;
-	  },
-	
-	  replace: function (path) {
-	    window.location.replace(path);
-	  },
-	
-	  pop: function () {
-	    window.history.back();
-	  },
-	
-	  getCurrentPath: getWindowPath,
-	
-	  toString: function () {
-	    return '<RefreshLocation>';
-	  }
-	
-	};
-	
-	module.exports = RefreshLocation;
-
-
-/***/ },
-/* 147 */
 /*!******************************************************!*\
   !*** ./~/react-router/modules/stores/ActiveStore.js ***!
   \******************************************************/
@@ -17241,7 +17051,7 @@
 
 
 /***/ },
-/* 148 */
+/* 145 */
 /*!****************************************************!*\
   !*** ./~/react-router/modules/stores/PathStore.js ***!
   \****************************************************/
@@ -17251,9 +17061,9 @@
 	var EventEmitter = __webpack_require__(/*! events */ 241).EventEmitter;
 	var LocationActions = __webpack_require__(/*! ../actions/LocationActions */ 71);
 	var LocationDispatcher = __webpack_require__(/*! ../dispatchers/LocationDispatcher */ 150);
-	var supportsHistory = __webpack_require__(/*! ../helpers/supportsHistory */ 208);
-	var HistoryLocation = __webpack_require__(/*! ../locations/HistoryLocation */ 145);
-	var RefreshLocation = __webpack_require__(/*! ../locations/RefreshLocation */ 146);
+	var supportsHistory = __webpack_require__(/*! ../helpers/supportsHistory */ 207);
+	var HistoryLocation = __webpack_require__(/*! ../locations/HistoryLocation */ 148);
+	var RefreshLocation = __webpack_require__(/*! ../locations/RefreshLocation */ 149);
 	
 	var CHANGE_EVENT = 'change';
 	var _events = new EventEmitter;
@@ -17380,7 +17190,7 @@
 
 
 /***/ },
-/* 149 */
+/* 146 */
 /*!*****************************************************!*\
   !*** ./~/react-router/modules/stores/RouteStore.js ***!
   \*****************************************************/
@@ -17389,7 +17199,7 @@
 	var React = __webpack_require__(/*! react */ 10);
 	var invariant = __webpack_require__(/*! react/lib/invariant */ 80);
 	var warning = __webpack_require__(/*! react/lib/warning */ 78);
-	var Path = __webpack_require__(/*! ../helpers/Path */ 138);
+	var Path = __webpack_require__(/*! ../helpers/Path */ 139);
 	
 	var _namedRoutes = {};
 	
@@ -17545,6 +17355,206 @@
 
 
 /***/ },
+/* 147 */
+/*!**********************************************************!*\
+  !*** ./~/react-router/modules/locations/HashLocation.js ***!
+  \**********************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	var invariant = __webpack_require__(/*! react/lib/invariant */ 80);
+	var ExecutionEnvironment = __webpack_require__(/*! react/lib/ExecutionEnvironment */ 61);
+	var getWindowPath = __webpack_require__(/*! ../helpers/getWindowPath */ 208);
+	
+	function getHashPath() {
+	  return window.location.hash.substr(1);
+	}
+	
+	function ensureSlash() {
+	  var path = getHashPath();
+	
+	  if (path.charAt(0) === '/')
+	    return true;
+	
+	  HashLocation.replace('/' + path);
+	
+	  return false;
+	}
+	
+	var _onChange;
+	
+	function handleHashChange() {
+	  if (ensureSlash())
+	    _onChange();
+	}
+	
+	/**
+	 * A Location that uses `window.location.hash`.
+	 */
+	var HashLocation = {
+	
+	  setup: function (onChange) {
+	    invariant(
+	      ExecutionEnvironment.canUseDOM,
+	      'You cannot use HashLocation in an environment with no DOM'
+	    );
+	
+	    _onChange = onChange;
+	
+	    ensureSlash();
+	
+	    if (window.addEventListener) {
+	      window.addEventListener('hashchange', handleHashChange, false);
+	    } else {
+	      window.attachEvent('onhashchange', handleHashChange);
+	    }
+	  },
+	
+	  teardown: function () {
+	    if (window.removeEventListener) {
+	      window.removeEventListener('hashchange', handleHashChange, false);
+	    } else {
+	      window.detachEvent('onhashchange', handleHashChange);
+	    }
+	  },
+	
+	  push: function (path) {
+	    window.location.hash = path;
+	  },
+	
+	  replace: function (path) {
+	    window.location.replace(getWindowPath() + '#' + path);
+	  },
+	
+	  pop: function () {
+	    window.history.back();
+	  },
+	
+	  getCurrentPath: getHashPath,
+	
+	  toString: function () {
+	    return '<HashLocation>';
+	  }
+	
+	};
+	
+	module.exports = HashLocation;
+
+
+/***/ },
+/* 148 */
+/*!*************************************************************!*\
+  !*** ./~/react-router/modules/locations/HistoryLocation.js ***!
+  \*************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	var invariant = __webpack_require__(/*! react/lib/invariant */ 80);
+	var ExecutionEnvironment = __webpack_require__(/*! react/lib/ExecutionEnvironment */ 61);
+	var getWindowPath = __webpack_require__(/*! ../helpers/getWindowPath */ 208);
+	
+	var _onChange;
+	
+	/**
+	 * A Location that uses HTML5 history.
+	 */
+	var HistoryLocation = {
+	
+	  setup: function (onChange) {
+	    invariant(
+	      ExecutionEnvironment.canUseDOM,
+	      'You cannot use HistoryLocation in an environment with no DOM'
+	    );
+	
+	    _onChange = onChange;
+	
+	    if (window.addEventListener) {
+	      window.addEventListener('popstate', _onChange, false);
+	    } else {
+	      window.attachEvent('popstate', _onChange);
+	    }
+	  },
+	
+	  teardown: function () {
+	    if (window.removeEventListener) {
+	      window.removeEventListener('popstate', _onChange, false);
+	    } else {
+	      window.detachEvent('popstate', _onChange);
+	    }
+	  },
+	
+	  push: function (path) {
+	    window.history.pushState({ path: path }, '', path);
+	    _onChange();
+	  },
+	
+	  replace: function (path) {
+	    window.history.replaceState({ path: path }, '', path);
+	    _onChange();
+	  },
+	
+	  pop: function () {
+	    window.history.back();
+	  },
+	
+	  getCurrentPath: getWindowPath,
+	
+	  toString: function () {
+	    return '<HistoryLocation>';
+	  }
+	
+	};
+	
+	module.exports = HistoryLocation;
+
+
+/***/ },
+/* 149 */
+/*!*************************************************************!*\
+  !*** ./~/react-router/modules/locations/RefreshLocation.js ***!
+  \*************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	var invariant = __webpack_require__(/*! react/lib/invariant */ 80);
+	var ExecutionEnvironment = __webpack_require__(/*! react/lib/ExecutionEnvironment */ 61);
+	var getWindowPath = __webpack_require__(/*! ../helpers/getWindowPath */ 208);
+	
+	/**
+	 * A Location that uses full page refreshes. This is used as
+	 * the fallback for HistoryLocation in browsers that do not
+	 * support the HTML5 history API.
+	 */
+	var RefreshLocation = {
+	
+	  setup: function () {
+	    invariant(
+	      ExecutionEnvironment.canUseDOM,
+	      'You cannot use RefreshLocation in an environment with no DOM'
+	    );
+	  },
+	
+	  push: function (path) {
+	    window.location = path;
+	  },
+	
+	  replace: function (path) {
+	    window.location.replace(path);
+	  },
+	
+	  pop: function () {
+	    window.history.back();
+	  },
+	
+	  getCurrentPath: getWindowPath,
+	
+	  toString: function () {
+	    return '<RefreshLocation>';
+	  }
+	
+	};
+	
+	module.exports = RefreshLocation;
+
+
+/***/ },
 /* 150 */
 /*!******************************************************************!*\
   !*** ./~/react-router/modules/dispatchers/LocationDispatcher.js ***!
@@ -17586,8 +17596,8 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var baseClone = __webpack_require__(/*! ../internals/baseClone */ 214),
-	    baseCreateCallback = __webpack_require__(/*! ../internals/baseCreateCallback */ 215);
+	var baseClone = __webpack_require__(/*! ../internals/baseClone */ 213),
+	    baseCreateCallback = __webpack_require__(/*! ../internals/baseCreateCallback */ 214);
 	
 	/**
 	 * Creates a clone of `value`. If `isDeep` is `true` nested objects will also
@@ -17658,7 +17668,7 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var createCallback = __webpack_require__(/*! ../functions/createCallback */ 213),
+	var createCallback = __webpack_require__(/*! ../functions/createCallback */ 226),
 	    forOwn = __webpack_require__(/*! ./forOwn */ 153);
 	
 	/**
@@ -17725,9 +17735,9 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var baseCreateCallback = __webpack_require__(/*! ../internals/baseCreateCallback */ 215),
+	var baseCreateCallback = __webpack_require__(/*! ../internals/baseCreateCallback */ 214),
 	    keys = __webpack_require__(/*! ./keys */ 154),
-	    objectTypes = __webpack_require__(/*! ../internals/objectTypes */ 216);
+	    objectTypes = __webpack_require__(/*! ../internals/objectTypes */ 215);
 	
 	/**
 	 * Iterates over own enumerable properties of an object, executing the callback
@@ -17784,9 +17794,9 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var isNative = __webpack_require__(/*! ../internals/isNative */ 217),
+	var isNative = __webpack_require__(/*! ../internals/isNative */ 216),
 	    isObject = __webpack_require__(/*! ./isObject */ 209),
-	    shimKeys = __webpack_require__(/*! ../internals/shimKeys */ 218);
+	    shimKeys = __webpack_require__(/*! ../internals/shimKeys */ 217);
 	
 	/* Native method shortcuts for methods with the same name as other `lodash` methods */
 	var nativeKeys = isNative(nativeKeys = Object.keys) && nativeKeys;
@@ -17829,7 +17839,7 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var createCallback = __webpack_require__(/*! ../functions/createCallback */ 213),
+	var createCallback = __webpack_require__(/*! ../functions/createCallback */ 226),
 	    forOwn = __webpack_require__(/*! ./forOwn */ 153);
 	
 	/**
@@ -17903,15 +17913,15 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var baseIndexOf = __webpack_require__(/*! ../internals/baseIndexOf */ 219),
-	    cacheIndexOf = __webpack_require__(/*! ../internals/cacheIndexOf */ 220),
-	    createCache = __webpack_require__(/*! ../internals/createCache */ 221),
-	    getArray = __webpack_require__(/*! ../internals/getArray */ 222),
+	var baseIndexOf = __webpack_require__(/*! ../internals/baseIndexOf */ 218),
+	    cacheIndexOf = __webpack_require__(/*! ../internals/cacheIndexOf */ 219),
+	    createCache = __webpack_require__(/*! ../internals/createCache */ 220),
+	    getArray = __webpack_require__(/*! ../internals/getArray */ 221),
 	    isArguments = __webpack_require__(/*! ../objects/isArguments */ 210),
 	    isArray = __webpack_require__(/*! ../objects/isArray */ 211),
-	    largeArraySize = __webpack_require__(/*! ../internals/largeArraySize */ 223),
-	    releaseArray = __webpack_require__(/*! ../internals/releaseArray */ 224),
-	    releaseObject = __webpack_require__(/*! ../internals/releaseObject */ 225);
+	    largeArraySize = __webpack_require__(/*! ../internals/largeArraySize */ 222),
+	    releaseArray = __webpack_require__(/*! ../internals/releaseArray */ 223),
+	    releaseObject = __webpack_require__(/*! ../internals/releaseObject */ 224);
 	
 	/**
 	 * Creates an array of unique values present in all provided arrays using
@@ -17995,8 +18005,8 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var baseUniq = __webpack_require__(/*! ../internals/baseUniq */ 226),
-	    createCallback = __webpack_require__(/*! ../functions/createCallback */ 213);
+	var baseUniq = __webpack_require__(/*! ../internals/baseUniq */ 225),
+	    createCallback = __webpack_require__(/*! ../functions/createCallback */ 226);
 	
 	/**
 	 * Creates a duplicate-value-free version of an array using strict equality
@@ -18073,7 +18083,7 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var createCallback = __webpack_require__(/*! ../functions/createCallback */ 213),
+	var createCallback = __webpack_require__(/*! ../functions/createCallback */ 226),
 	    forOwn = __webpack_require__(/*! ../objects/forOwn */ 153);
 	
 	/**
@@ -18152,7 +18162,7 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var baseCreateCallback = __webpack_require__(/*! ../internals/baseCreateCallback */ 215),
+	var baseCreateCallback = __webpack_require__(/*! ../internals/baseCreateCallback */ 214),
 	    forOwn = __webpack_require__(/*! ../objects/forOwn */ 153);
 	
 	/**
@@ -22952,24 +22962,6 @@
 
 /***/ },
 /* 207 */
-/*!*********************************************************!*\
-  !*** ./~/react-router/modules/helpers/getWindowPath.js ***!
-  \*********************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Returns the current URL path from `window.location`, including query string
-	 */
-	function getWindowPath() {
-	  return window.location.pathname + window.location.search;
-	}
-	
-	module.exports = getWindowPath;
-	
-
-
-/***/ },
-/* 208 */
 /*!***********************************************************!*\
   !*** ./~/react-router/modules/helpers/supportsHistory.js ***!
   \***********************************************************/
@@ -22994,6 +22986,24 @@
 
 
 /***/ },
+/* 208 */
+/*!*********************************************************!*\
+  !*** ./~/react-router/modules/helpers/getWindowPath.js ***!
+  \*********************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Returns the current URL path from `window.location`, including query string
+	 */
+	function getWindowPath() {
+	  return window.location.pathname + window.location.search;
+	}
+	
+	module.exports = getWindowPath;
+	
+
+
+/***/ },
 /* 209 */
 /*!************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/objects/isObject.js ***!
@@ -23008,7 +23018,7 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var objectTypes = __webpack_require__(/*! ../internals/objectTypes */ 216);
+	var objectTypes = __webpack_require__(/*! ../internals/objectTypes */ 215);
 	
 	/**
 	 * Checks if `value` is the language type of Object.
@@ -23105,7 +23115,7 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var isNative = __webpack_require__(/*! ../internals/isNative */ 217);
+	var isNative = __webpack_require__(/*! ../internals/isNative */ 216);
 	
 	/** `Object#toString` result shortcuts */
 	var arrayClass = '[object Array]';
@@ -23172,96 +23182,6 @@
 
 /***/ },
 /* 213 */
-/*!********************************************************************!*\
-  !*** ./~/fluxxor/~/lodash-node/modern/functions/createCallback.js ***!
-  \********************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="node" -o ./modern/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	var baseCreateCallback = __webpack_require__(/*! ../internals/baseCreateCallback */ 215),
-	    baseIsEqual = __webpack_require__(/*! ../internals/baseIsEqual */ 245),
-	    isObject = __webpack_require__(/*! ../objects/isObject */ 209),
-	    keys = __webpack_require__(/*! ../objects/keys */ 154),
-	    property = __webpack_require__(/*! ../utilities/property */ 257);
-	
-	/**
-	 * Produces a callback bound to an optional `thisArg`. If `func` is a property
-	 * name the created callback will return the property value for a given element.
-	 * If `func` is an object the created callback will return `true` for elements
-	 * that contain the equivalent object properties, otherwise it will return `false`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Utilities
-	 * @param {*} [func=identity] The value to convert to a callback.
-	 * @param {*} [thisArg] The `this` binding of the created callback.
-	 * @param {number} [argCount] The number of arguments the callback accepts.
-	 * @returns {Function} Returns a callback function.
-	 * @example
-	 *
-	 * var characters = [
-	 *   { 'name': 'barney', 'age': 36 },
-	 *   { 'name': 'fred',   'age': 40 }
-	 * ];
-	 *
-	 * // wrap to create custom callback shorthands
-	 * _.createCallback = _.wrap(_.createCallback, function(func, callback, thisArg) {
-	 *   var match = /^(.+?)__([gl]t)(.+)$/.exec(callback);
-	 *   return !match ? func(callback, thisArg) : function(object) {
-	 *     return match[2] == 'gt' ? object[match[1]] > match[3] : object[match[1]] < match[3];
-	 *   };
-	 * });
-	 *
-	 * _.filter(characters, 'age__gt38');
-	 * // => [{ 'name': 'fred', 'age': 40 }]
-	 */
-	function createCallback(func, thisArg, argCount) {
-	  var type = typeof func;
-	  if (func == null || type == 'function') {
-	    return baseCreateCallback(func, thisArg, argCount);
-	  }
-	  // handle "_.pluck" style callback shorthands
-	  if (type != 'object') {
-	    return property(func);
-	  }
-	  var props = keys(func),
-	      key = props[0],
-	      a = func[key];
-	
-	  // handle "_.where" style callback shorthands
-	  if (props.length == 1 && a === a && !isObject(a)) {
-	    // fast path the common case of providing an object with a single
-	    // property containing a primitive value
-	    return function(object) {
-	      var b = object[key];
-	      return a === b && (a !== 0 || (1 / a == 1 / b));
-	    };
-	  }
-	  return function(object) {
-	    var length = props.length,
-	        result = false;
-	
-	    while (length--) {
-	      if (!(result = baseIsEqual(object[props[length]], func[props[length]], null, true))) {
-	        break;
-	      }
-	    }
-	    return result;
-	  };
-	}
-	
-	module.exports = createCallback;
-
-
-/***/ },
-/* 214 */
 /*!***************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/internals/baseClone.js ***!
   \***************************************************************/
@@ -23275,14 +23195,14 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var assign = __webpack_require__(/*! ../objects/assign */ 249),
+	var assign = __webpack_require__(/*! ../objects/assign */ 245),
 	    forEach = __webpack_require__(/*! ../collections/forEach */ 159),
 	    forOwn = __webpack_require__(/*! ../objects/forOwn */ 153),
-	    getArray = __webpack_require__(/*! ./getArray */ 222),
+	    getArray = __webpack_require__(/*! ./getArray */ 221),
 	    isArray = __webpack_require__(/*! ../objects/isArray */ 211),
 	    isObject = __webpack_require__(/*! ../objects/isObject */ 209),
-	    releaseArray = __webpack_require__(/*! ./releaseArray */ 224),
-	    slice = __webpack_require__(/*! ./slice */ 250);
+	    releaseArray = __webpack_require__(/*! ./releaseArray */ 223),
+	    slice = __webpack_require__(/*! ./slice */ 246);
 	
 	/** Used to match regexp flags from their coerced string values */
 	var reFlags = /\w*$/;
@@ -23422,7 +23342,7 @@
 
 
 /***/ },
-/* 215 */
+/* 214 */
 /*!************************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/internals/baseCreateCallback.js ***!
   \************************************************************************/
@@ -23436,10 +23356,10 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var bind = __webpack_require__(/*! ../functions/bind */ 246),
-	    identity = __webpack_require__(/*! ../utilities/identity */ 258),
-	    setBindData = __webpack_require__(/*! ./setBindData */ 247),
-	    support = __webpack_require__(/*! ../support */ 248);
+	var bind = __webpack_require__(/*! ../functions/bind */ 247),
+	    identity = __webpack_require__(/*! ../utilities/identity */ 257),
+	    setBindData = __webpack_require__(/*! ./setBindData */ 248),
+	    support = __webpack_require__(/*! ../support */ 249);
 	
 	/** Used to detected named functions */
 	var reFuncName = /^\s*function[ \n\r\t]+\w/;
@@ -23511,7 +23431,7 @@
 
 
 /***/ },
-/* 216 */
+/* 215 */
 /*!*****************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/internals/objectTypes.js ***!
   \*****************************************************************/
@@ -23540,7 +23460,7 @@
 
 
 /***/ },
-/* 217 */
+/* 216 */
 /*!**************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/internals/isNative.js ***!
   \**************************************************************/
@@ -23583,7 +23503,7 @@
 
 
 /***/ },
-/* 218 */
+/* 217 */
 /*!**************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/internals/shimKeys.js ***!
   \**************************************************************/
@@ -23597,7 +23517,7 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var objectTypes = __webpack_require__(/*! ./objectTypes */ 216);
+	var objectTypes = __webpack_require__(/*! ./objectTypes */ 215);
 	
 	/** Used for native method references */
 	var objectProto = Object.prototype;
@@ -23630,7 +23550,7 @@
 
 
 /***/ },
-/* 219 */
+/* 218 */
 /*!*****************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/internals/baseIndexOf.js ***!
   \*****************************************************************/
@@ -23671,7 +23591,7 @@
 
 
 /***/ },
-/* 220 */
+/* 219 */
 /*!******************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/internals/cacheIndexOf.js ***!
   \******************************************************************/
@@ -23685,8 +23605,8 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var baseIndexOf = __webpack_require__(/*! ./baseIndexOf */ 219),
-	    keyPrefix = __webpack_require__(/*! ./keyPrefix */ 251);
+	var baseIndexOf = __webpack_require__(/*! ./baseIndexOf */ 218),
+	    keyPrefix = __webpack_require__(/*! ./keyPrefix */ 250);
 	
 	/**
 	 * An implementation of `_.contains` for cache objects that mimics the return
@@ -23719,7 +23639,7 @@
 
 
 /***/ },
-/* 221 */
+/* 220 */
 /*!*****************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/internals/createCache.js ***!
   \*****************************************************************/
@@ -23733,9 +23653,9 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var cachePush = __webpack_require__(/*! ./cachePush */ 252),
-	    getObject = __webpack_require__(/*! ./getObject */ 253),
-	    releaseObject = __webpack_require__(/*! ./releaseObject */ 225);
+	var cachePush = __webpack_require__(/*! ./cachePush */ 251),
+	    getObject = __webpack_require__(/*! ./getObject */ 252),
+	    releaseObject = __webpack_require__(/*! ./releaseObject */ 224);
 	
 	/**
 	 * Creates a cache object to optimize linear searches of large arrays.
@@ -23773,7 +23693,7 @@
 
 
 /***/ },
-/* 222 */
+/* 221 */
 /*!**************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/internals/getArray.js ***!
   \**************************************************************/
@@ -23787,7 +23707,7 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var arrayPool = __webpack_require__(/*! ./arrayPool */ 254);
+	var arrayPool = __webpack_require__(/*! ./arrayPool */ 253);
 	
 	/**
 	 * Gets an array from the array pool or creates a new one if the pool is empty.
@@ -23803,7 +23723,7 @@
 
 
 /***/ },
-/* 223 */
+/* 222 */
 /*!********************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/internals/largeArraySize.js ***!
   \********************************************************************/
@@ -23825,7 +23745,7 @@
 
 
 /***/ },
-/* 224 */
+/* 223 */
 /*!******************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/internals/releaseArray.js ***!
   \******************************************************************/
@@ -23839,8 +23759,8 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var arrayPool = __webpack_require__(/*! ./arrayPool */ 254),
-	    maxPoolSize = __webpack_require__(/*! ./maxPoolSize */ 255);
+	var arrayPool = __webpack_require__(/*! ./arrayPool */ 253),
+	    maxPoolSize = __webpack_require__(/*! ./maxPoolSize */ 254);
 	
 	/**
 	 * Releases the given array back to the array pool.
@@ -23859,7 +23779,7 @@
 
 
 /***/ },
-/* 225 */
+/* 224 */
 /*!*******************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/internals/releaseObject.js ***!
   \*******************************************************************/
@@ -23873,8 +23793,8 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var maxPoolSize = __webpack_require__(/*! ./maxPoolSize */ 255),
-	    objectPool = __webpack_require__(/*! ./objectPool */ 256);
+	var maxPoolSize = __webpack_require__(/*! ./maxPoolSize */ 254),
+	    objectPool = __webpack_require__(/*! ./objectPool */ 255);
 	
 	/**
 	 * Releases the given object back to the object pool.
@@ -23897,7 +23817,7 @@
 
 
 /***/ },
-/* 226 */
+/* 225 */
 /*!**************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/internals/baseUniq.js ***!
   \**************************************************************/
@@ -23911,13 +23831,13 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var baseIndexOf = __webpack_require__(/*! ./baseIndexOf */ 219),
-	    cacheIndexOf = __webpack_require__(/*! ./cacheIndexOf */ 220),
-	    createCache = __webpack_require__(/*! ./createCache */ 221),
-	    getArray = __webpack_require__(/*! ./getArray */ 222),
-	    largeArraySize = __webpack_require__(/*! ./largeArraySize */ 223),
-	    releaseArray = __webpack_require__(/*! ./releaseArray */ 224),
-	    releaseObject = __webpack_require__(/*! ./releaseObject */ 225);
+	var baseIndexOf = __webpack_require__(/*! ./baseIndexOf */ 218),
+	    cacheIndexOf = __webpack_require__(/*! ./cacheIndexOf */ 219),
+	    createCache = __webpack_require__(/*! ./createCache */ 220),
+	    getArray = __webpack_require__(/*! ./getArray */ 221),
+	    largeArraySize = __webpack_require__(/*! ./largeArraySize */ 222),
+	    releaseArray = __webpack_require__(/*! ./releaseArray */ 223),
+	    releaseObject = __webpack_require__(/*! ./releaseObject */ 224);
 	
 	/**
 	 * The base implementation of `_.uniq` without support for callback shorthands
@@ -23967,6 +23887,96 @@
 	}
 	
 	module.exports = baseUniq;
+
+
+/***/ },
+/* 226 */
+/*!********************************************************************!*\
+  !*** ./~/fluxxor/~/lodash-node/modern/functions/createCallback.js ***!
+  \********************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="node" -o ./modern/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	var baseCreateCallback = __webpack_require__(/*! ../internals/baseCreateCallback */ 214),
+	    baseIsEqual = __webpack_require__(/*! ../internals/baseIsEqual */ 256),
+	    isObject = __webpack_require__(/*! ../objects/isObject */ 209),
+	    keys = __webpack_require__(/*! ../objects/keys */ 154),
+	    property = __webpack_require__(/*! ../utilities/property */ 258);
+	
+	/**
+	 * Produces a callback bound to an optional `thisArg`. If `func` is a property
+	 * name the created callback will return the property value for a given element.
+	 * If `func` is an object the created callback will return `true` for elements
+	 * that contain the equivalent object properties, otherwise it will return `false`.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Utilities
+	 * @param {*} [func=identity] The value to convert to a callback.
+	 * @param {*} [thisArg] The `this` binding of the created callback.
+	 * @param {number} [argCount] The number of arguments the callback accepts.
+	 * @returns {Function} Returns a callback function.
+	 * @example
+	 *
+	 * var characters = [
+	 *   { 'name': 'barney', 'age': 36 },
+	 *   { 'name': 'fred',   'age': 40 }
+	 * ];
+	 *
+	 * // wrap to create custom callback shorthands
+	 * _.createCallback = _.wrap(_.createCallback, function(func, callback, thisArg) {
+	 *   var match = /^(.+?)__([gl]t)(.+)$/.exec(callback);
+	 *   return !match ? func(callback, thisArg) : function(object) {
+	 *     return match[2] == 'gt' ? object[match[1]] > match[3] : object[match[1]] < match[3];
+	 *   };
+	 * });
+	 *
+	 * _.filter(characters, 'age__gt38');
+	 * // => [{ 'name': 'fred', 'age': 40 }]
+	 */
+	function createCallback(func, thisArg, argCount) {
+	  var type = typeof func;
+	  if (func == null || type == 'function') {
+	    return baseCreateCallback(func, thisArg, argCount);
+	  }
+	  // handle "_.pluck" style callback shorthands
+	  if (type != 'object') {
+	    return property(func);
+	  }
+	  var props = keys(func),
+	      key = props[0],
+	      a = func[key];
+	
+	  // handle "_.where" style callback shorthands
+	  if (props.length == 1 && a === a && !isObject(a)) {
+	    // fast path the common case of providing an object with a single
+	    // property containing a primitive value
+	    return function(object) {
+	      var b = object[key];
+	      return a === b && (a !== 0 || (1 / a == 1 / b));
+	    };
+	  }
+	  return function(object) {
+	    var length = props.length,
+	        result = false;
+	
+	    while (length--) {
+	      if (!(result = baseIsEqual(object[props[length]], func[props[length]], null, true))) {
+	        break;
+	      }
+	    }
+	    return result;
+	  };
+	}
+	
+	module.exports = createCallback;
 
 
 /***/ },
@@ -26308,6 +26318,462 @@
 
 /***/ },
 /* 245 */
+/*!**********************************************************!*\
+  !*** ./~/fluxxor/~/lodash-node/modern/objects/assign.js ***!
+  \**********************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="node" -o ./modern/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	var baseCreateCallback = __webpack_require__(/*! ../internals/baseCreateCallback */ 214),
+	    keys = __webpack_require__(/*! ./keys */ 154),
+	    objectTypes = __webpack_require__(/*! ../internals/objectTypes */ 215);
+	
+	/**
+	 * Assigns own enumerable properties of source object(s) to the destination
+	 * object. Subsequent sources will overwrite property assignments of previous
+	 * sources. If a callback is provided it will be executed to produce the
+	 * assigned values. The callback is bound to `thisArg` and invoked with two
+	 * arguments; (objectValue, sourceValue).
+	 *
+	 * @static
+	 * @memberOf _
+	 * @type Function
+	 * @alias extend
+	 * @category Objects
+	 * @param {Object} object The destination object.
+	 * @param {...Object} [source] The source objects.
+	 * @param {Function} [callback] The function to customize assigning values.
+	 * @param {*} [thisArg] The `this` binding of `callback`.
+	 * @returns {Object} Returns the destination object.
+	 * @example
+	 *
+	 * _.assign({ 'name': 'fred' }, { 'employer': 'slate' });
+	 * // => { 'name': 'fred', 'employer': 'slate' }
+	 *
+	 * var defaults = _.partialRight(_.assign, function(a, b) {
+	 *   return typeof a == 'undefined' ? b : a;
+	 * });
+	 *
+	 * var object = { 'name': 'barney' };
+	 * defaults(object, { 'name': 'fred', 'employer': 'slate' });
+	 * // => { 'name': 'barney', 'employer': 'slate' }
+	 */
+	var assign = function(object, source, guard) {
+	  var index, iterable = object, result = iterable;
+	  if (!iterable) return result;
+	  var args = arguments,
+	      argsIndex = 0,
+	      argsLength = typeof guard == 'number' ? 2 : args.length;
+	  if (argsLength > 3 && typeof args[argsLength - 2] == 'function') {
+	    var callback = baseCreateCallback(args[--argsLength - 1], args[argsLength--], 2);
+	  } else if (argsLength > 2 && typeof args[argsLength - 1] == 'function') {
+	    callback = args[--argsLength];
+	  }
+	  while (++argsIndex < argsLength) {
+	    iterable = args[argsIndex];
+	    if (iterable && objectTypes[typeof iterable]) {
+	    var ownIndex = -1,
+	        ownProps = objectTypes[typeof iterable] && keys(iterable),
+	        length = ownProps ? ownProps.length : 0;
+	
+	    while (++ownIndex < length) {
+	      index = ownProps[ownIndex];
+	      result[index] = callback ? callback(result[index], iterable[index]) : iterable[index];
+	    }
+	    }
+	  }
+	  return result
+	};
+	
+	module.exports = assign;
+
+
+/***/ },
+/* 246 */
+/*!***********************************************************!*\
+  !*** ./~/fluxxor/~/lodash-node/modern/internals/slice.js ***!
+  \***********************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="node" -o ./modern/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	
+	/**
+	 * Slices the `collection` from the `start` index up to, but not including,
+	 * the `end` index.
+	 *
+	 * Note: This function is used instead of `Array#slice` to support node lists
+	 * in IE < 9 and to ensure dense arrays are returned.
+	 *
+	 * @private
+	 * @param {Array|Object|string} collection The collection to slice.
+	 * @param {number} start The start index.
+	 * @param {number} end The end index.
+	 * @returns {Array} Returns the new array.
+	 */
+	function slice(array, start, end) {
+	  start || (start = 0);
+	  if (typeof end == 'undefined') {
+	    end = array ? array.length : 0;
+	  }
+	  var index = -1,
+	      length = end - start || 0,
+	      result = Array(length < 0 ? 0 : length);
+	
+	  while (++index < length) {
+	    result[index] = array[start + index];
+	  }
+	  return result;
+	}
+	
+	module.exports = slice;
+
+
+/***/ },
+/* 247 */
+/*!**********************************************************!*\
+  !*** ./~/fluxxor/~/lodash-node/modern/functions/bind.js ***!
+  \**********************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="node" -o ./modern/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	var createWrapper = __webpack_require__(/*! ../internals/createWrapper */ 265),
+	    slice = __webpack_require__(/*! ../internals/slice */ 246);
+	
+	/**
+	 * Creates a function that, when called, invokes `func` with the `this`
+	 * binding of `thisArg` and prepends any additional `bind` arguments to those
+	 * provided to the bound function.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Functions
+	 * @param {Function} func The function to bind.
+	 * @param {*} [thisArg] The `this` binding of `func`.
+	 * @param {...*} [arg] Arguments to be partially applied.
+	 * @returns {Function} Returns the new bound function.
+	 * @example
+	 *
+	 * var func = function(greeting) {
+	 *   return greeting + ' ' + this.name;
+	 * };
+	 *
+	 * func = _.bind(func, { 'name': 'fred' }, 'hi');
+	 * func();
+	 * // => 'hi fred'
+	 */
+	function bind(func, thisArg) {
+	  return arguments.length > 2
+	    ? createWrapper(func, 17, slice(arguments, 2), null, thisArg)
+	    : createWrapper(func, 1, null, null, thisArg);
+	}
+	
+	module.exports = bind;
+
+
+/***/ },
+/* 248 */
+/*!*****************************************************************!*\
+  !*** ./~/fluxxor/~/lodash-node/modern/internals/setBindData.js ***!
+  \*****************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="node" -o ./modern/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	var isNative = __webpack_require__(/*! ./isNative */ 216),
+	    noop = __webpack_require__(/*! ../utilities/noop */ 266);
+	
+	/** Used as the property descriptor for `__bindData__` */
+	var descriptor = {
+	  'configurable': false,
+	  'enumerable': false,
+	  'value': null,
+	  'writable': false
+	};
+	
+	/** Used to set meta data on functions */
+	var defineProperty = (function() {
+	  // IE 8 only accepts DOM elements
+	  try {
+	    var o = {},
+	        func = isNative(func = Object.defineProperty) && func,
+	        result = func(o, o, o) && func;
+	  } catch(e) { }
+	  return result;
+	}());
+	
+	/**
+	 * Sets `this` binding data on a given function.
+	 *
+	 * @private
+	 * @param {Function} func The function to set data on.
+	 * @param {Array} value The data array to set.
+	 */
+	var setBindData = !defineProperty ? noop : function(func, value) {
+	  descriptor.value = value;
+	  defineProperty(func, '__bindData__', descriptor);
+	};
+	
+	module.exports = setBindData;
+
+
+/***/ },
+/* 249 */
+/*!***************************************************!*\
+  !*** ./~/fluxxor/~/lodash-node/modern/support.js ***!
+  \***************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(global) {/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="node" -o ./modern/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	var isNative = __webpack_require__(/*! ./internals/isNative */ 216);
+	
+	/** Used to detect functions containing a `this` reference */
+	var reThis = /\bthis\b/;
+	
+	/**
+	 * An object used to flag environments features.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @type Object
+	 */
+	var support = {};
+	
+	/**
+	 * Detect if functions can be decompiled by `Function#toString`
+	 * (all but PS3 and older Opera mobile browsers & avoided in Windows 8 apps).
+	 *
+	 * @memberOf _.support
+	 * @type boolean
+	 */
+	support.funcDecomp = !isNative(global.WinRTError) && reThis.test(function() { return this; });
+	
+	/**
+	 * Detect if `Function#name` is supported (all but IE).
+	 *
+	 * @memberOf _.support
+	 * @type boolean
+	 */
+	support.funcNames = typeof Function.name == 'string';
+	
+	module.exports = support;
+	
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
+
+/***/ },
+/* 250 */
+/*!***************************************************************!*\
+  !*** ./~/fluxxor/~/lodash-node/modern/internals/keyPrefix.js ***!
+  \***************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="node" -o ./modern/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	
+	/** Used to prefix keys to avoid issues with `__proto__` and properties on `Object.prototype` */
+	var keyPrefix = +new Date + '';
+	
+	module.exports = keyPrefix;
+
+
+/***/ },
+/* 251 */
+/*!***************************************************************!*\
+  !*** ./~/fluxxor/~/lodash-node/modern/internals/cachePush.js ***!
+  \***************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="node" -o ./modern/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	var keyPrefix = __webpack_require__(/*! ./keyPrefix */ 250);
+	
+	/**
+	 * Adds a given value to the corresponding cache object.
+	 *
+	 * @private
+	 * @param {*} value The value to add to the cache.
+	 */
+	function cachePush(value) {
+	  var cache = this.cache,
+	      type = typeof value;
+	
+	  if (type == 'boolean' || value == null) {
+	    cache[value] = true;
+	  } else {
+	    if (type != 'number' && type != 'string') {
+	      type = 'object';
+	    }
+	    var key = type == 'number' ? value : keyPrefix + value,
+	        typeCache = cache[type] || (cache[type] = {});
+	
+	    if (type == 'object') {
+	      (typeCache[key] || (typeCache[key] = [])).push(value);
+	    } else {
+	      typeCache[key] = true;
+	    }
+	  }
+	}
+	
+	module.exports = cachePush;
+
+
+/***/ },
+/* 252 */
+/*!***************************************************************!*\
+  !*** ./~/fluxxor/~/lodash-node/modern/internals/getObject.js ***!
+  \***************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="node" -o ./modern/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	var objectPool = __webpack_require__(/*! ./objectPool */ 255);
+	
+	/**
+	 * Gets an object from the object pool or creates a new one if the pool is empty.
+	 *
+	 * @private
+	 * @returns {Object} The object from the pool.
+	 */
+	function getObject() {
+	  return objectPool.pop() || {
+	    'array': null,
+	    'cache': null,
+	    'criteria': null,
+	    'false': false,
+	    'index': 0,
+	    'null': false,
+	    'number': null,
+	    'object': null,
+	    'push': null,
+	    'string': null,
+	    'true': false,
+	    'undefined': false,
+	    'value': null
+	  };
+	}
+	
+	module.exports = getObject;
+
+
+/***/ },
+/* 253 */
+/*!***************************************************************!*\
+  !*** ./~/fluxxor/~/lodash-node/modern/internals/arrayPool.js ***!
+  \***************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="node" -o ./modern/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	
+	/** Used to pool arrays and objects used internally */
+	var arrayPool = [];
+	
+	module.exports = arrayPool;
+
+
+/***/ },
+/* 254 */
+/*!*****************************************************************!*\
+  !*** ./~/fluxxor/~/lodash-node/modern/internals/maxPoolSize.js ***!
+  \*****************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="node" -o ./modern/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	
+	/** Used as the max size of the `arrayPool` and `objectPool` */
+	var maxPoolSize = 40;
+	
+	module.exports = maxPoolSize;
+
+
+/***/ },
+/* 255 */
+/*!****************************************************************!*\
+  !*** ./~/fluxxor/~/lodash-node/modern/internals/objectPool.js ***!
+  \****************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="node" -o ./modern/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	
+	/** Used to pool arrays and objects used internally */
+	var objectPool = [];
+	
+	module.exports = objectPool;
+
+
+/***/ },
+/* 256 */
 /*!*****************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/internals/baseIsEqual.js ***!
   \*****************************************************************/
@@ -26321,11 +26787,11 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var forIn = __webpack_require__(/*! ../objects/forIn */ 265),
-	    getArray = __webpack_require__(/*! ./getArray */ 222),
-	    isFunction = __webpack_require__(/*! ../objects/isFunction */ 266),
-	    objectTypes = __webpack_require__(/*! ./objectTypes */ 216),
-	    releaseArray = __webpack_require__(/*! ./releaseArray */ 224);
+	var forIn = __webpack_require__(/*! ../objects/forIn */ 267),
+	    getArray = __webpack_require__(/*! ./getArray */ 221),
+	    isFunction = __webpack_require__(/*! ../objects/isFunction */ 268),
+	    objectTypes = __webpack_require__(/*! ./objectTypes */ 215),
+	    releaseArray = __webpack_require__(/*! ./releaseArray */ 223);
 	
 	/** `Object#toString` result shortcuts */
 	var argsClass = '[object Arguments]',
@@ -26525,463 +26991,44 @@
 
 
 /***/ },
-/* 246 */
-/*!**********************************************************!*\
-  !*** ./~/fluxxor/~/lodash-node/modern/functions/bind.js ***!
-  \**********************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="node" -o ./modern/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	var createWrapper = __webpack_require__(/*! ../internals/createWrapper */ 267),
-	    slice = __webpack_require__(/*! ../internals/slice */ 250);
-	
-	/**
-	 * Creates a function that, when called, invokes `func` with the `this`
-	 * binding of `thisArg` and prepends any additional `bind` arguments to those
-	 * provided to the bound function.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Functions
-	 * @param {Function} func The function to bind.
-	 * @param {*} [thisArg] The `this` binding of `func`.
-	 * @param {...*} [arg] Arguments to be partially applied.
-	 * @returns {Function} Returns the new bound function.
-	 * @example
-	 *
-	 * var func = function(greeting) {
-	 *   return greeting + ' ' + this.name;
-	 * };
-	 *
-	 * func = _.bind(func, { 'name': 'fred' }, 'hi');
-	 * func();
-	 * // => 'hi fred'
-	 */
-	function bind(func, thisArg) {
-	  return arguments.length > 2
-	    ? createWrapper(func, 17, slice(arguments, 2), null, thisArg)
-	    : createWrapper(func, 1, null, null, thisArg);
-	}
-	
-	module.exports = bind;
-
-
-/***/ },
-/* 247 */
-/*!*****************************************************************!*\
-  !*** ./~/fluxxor/~/lodash-node/modern/internals/setBindData.js ***!
-  \*****************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="node" -o ./modern/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	var isNative = __webpack_require__(/*! ./isNative */ 217),
-	    noop = __webpack_require__(/*! ../utilities/noop */ 268);
-	
-	/** Used as the property descriptor for `__bindData__` */
-	var descriptor = {
-	  'configurable': false,
-	  'enumerable': false,
-	  'value': null,
-	  'writable': false
-	};
-	
-	/** Used to set meta data on functions */
-	var defineProperty = (function() {
-	  // IE 8 only accepts DOM elements
-	  try {
-	    var o = {},
-	        func = isNative(func = Object.defineProperty) && func,
-	        result = func(o, o, o) && func;
-	  } catch(e) { }
-	  return result;
-	}());
-	
-	/**
-	 * Sets `this` binding data on a given function.
-	 *
-	 * @private
-	 * @param {Function} func The function to set data on.
-	 * @param {Array} value The data array to set.
-	 */
-	var setBindData = !defineProperty ? noop : function(func, value) {
-	  descriptor.value = value;
-	  defineProperty(func, '__bindData__', descriptor);
-	};
-	
-	module.exports = setBindData;
-
-
-/***/ },
-/* 248 */
-/*!***************************************************!*\
-  !*** ./~/fluxxor/~/lodash-node/modern/support.js ***!
-  \***************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(global) {/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="node" -o ./modern/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	var isNative = __webpack_require__(/*! ./internals/isNative */ 217);
-	
-	/** Used to detect functions containing a `this` reference */
-	var reThis = /\bthis\b/;
-	
-	/**
-	 * An object used to flag environments features.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @type Object
-	 */
-	var support = {};
-	
-	/**
-	 * Detect if functions can be decompiled by `Function#toString`
-	 * (all but PS3 and older Opera mobile browsers & avoided in Windows 8 apps).
-	 *
-	 * @memberOf _.support
-	 * @type boolean
-	 */
-	support.funcDecomp = !isNative(global.WinRTError) && reThis.test(function() { return this; });
-	
-	/**
-	 * Detect if `Function#name` is supported (all but IE).
-	 *
-	 * @memberOf _.support
-	 * @type boolean
-	 */
-	support.funcNames = typeof Function.name == 'string';
-	
-	module.exports = support;
-	
-	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
-
-/***/ },
-/* 249 */
-/*!**********************************************************!*\
-  !*** ./~/fluxxor/~/lodash-node/modern/objects/assign.js ***!
-  \**********************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="node" -o ./modern/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	var baseCreateCallback = __webpack_require__(/*! ../internals/baseCreateCallback */ 215),
-	    keys = __webpack_require__(/*! ./keys */ 154),
-	    objectTypes = __webpack_require__(/*! ../internals/objectTypes */ 216);
-	
-	/**
-	 * Assigns own enumerable properties of source object(s) to the destination
-	 * object. Subsequent sources will overwrite property assignments of previous
-	 * sources. If a callback is provided it will be executed to produce the
-	 * assigned values. The callback is bound to `thisArg` and invoked with two
-	 * arguments; (objectValue, sourceValue).
-	 *
-	 * @static
-	 * @memberOf _
-	 * @type Function
-	 * @alias extend
-	 * @category Objects
-	 * @param {Object} object The destination object.
-	 * @param {...Object} [source] The source objects.
-	 * @param {Function} [callback] The function to customize assigning values.
-	 * @param {*} [thisArg] The `this` binding of `callback`.
-	 * @returns {Object} Returns the destination object.
-	 * @example
-	 *
-	 * _.assign({ 'name': 'fred' }, { 'employer': 'slate' });
-	 * // => { 'name': 'fred', 'employer': 'slate' }
-	 *
-	 * var defaults = _.partialRight(_.assign, function(a, b) {
-	 *   return typeof a == 'undefined' ? b : a;
-	 * });
-	 *
-	 * var object = { 'name': 'barney' };
-	 * defaults(object, { 'name': 'fred', 'employer': 'slate' });
-	 * // => { 'name': 'barney', 'employer': 'slate' }
-	 */
-	var assign = function(object, source, guard) {
-	  var index, iterable = object, result = iterable;
-	  if (!iterable) return result;
-	  var args = arguments,
-	      argsIndex = 0,
-	      argsLength = typeof guard == 'number' ? 2 : args.length;
-	  if (argsLength > 3 && typeof args[argsLength - 2] == 'function') {
-	    var callback = baseCreateCallback(args[--argsLength - 1], args[argsLength--], 2);
-	  } else if (argsLength > 2 && typeof args[argsLength - 1] == 'function') {
-	    callback = args[--argsLength];
-	  }
-	  while (++argsIndex < argsLength) {
-	    iterable = args[argsIndex];
-	    if (iterable && objectTypes[typeof iterable]) {
-	    var ownIndex = -1,
-	        ownProps = objectTypes[typeof iterable] && keys(iterable),
-	        length = ownProps ? ownProps.length : 0;
-	
-	    while (++ownIndex < length) {
-	      index = ownProps[ownIndex];
-	      result[index] = callback ? callback(result[index], iterable[index]) : iterable[index];
-	    }
-	    }
-	  }
-	  return result
-	};
-	
-	module.exports = assign;
-
-
-/***/ },
-/* 250 */
-/*!***********************************************************!*\
-  !*** ./~/fluxxor/~/lodash-node/modern/internals/slice.js ***!
-  \***********************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="node" -o ./modern/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	
-	/**
-	 * Slices the `collection` from the `start` index up to, but not including,
-	 * the `end` index.
-	 *
-	 * Note: This function is used instead of `Array#slice` to support node lists
-	 * in IE < 9 and to ensure dense arrays are returned.
-	 *
-	 * @private
-	 * @param {Array|Object|string} collection The collection to slice.
-	 * @param {number} start The start index.
-	 * @param {number} end The end index.
-	 * @returns {Array} Returns the new array.
-	 */
-	function slice(array, start, end) {
-	  start || (start = 0);
-	  if (typeof end == 'undefined') {
-	    end = array ? array.length : 0;
-	  }
-	  var index = -1,
-	      length = end - start || 0,
-	      result = Array(length < 0 ? 0 : length);
-	
-	  while (++index < length) {
-	    result[index] = array[start + index];
-	  }
-	  return result;
-	}
-	
-	module.exports = slice;
-
-
-/***/ },
-/* 251 */
-/*!***************************************************************!*\
-  !*** ./~/fluxxor/~/lodash-node/modern/internals/keyPrefix.js ***!
-  \***************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="node" -o ./modern/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	
-	/** Used to prefix keys to avoid issues with `__proto__` and properties on `Object.prototype` */
-	var keyPrefix = +new Date + '';
-	
-	module.exports = keyPrefix;
-
-
-/***/ },
-/* 252 */
-/*!***************************************************************!*\
-  !*** ./~/fluxxor/~/lodash-node/modern/internals/cachePush.js ***!
-  \***************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="node" -o ./modern/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	var keyPrefix = __webpack_require__(/*! ./keyPrefix */ 251);
-	
-	/**
-	 * Adds a given value to the corresponding cache object.
-	 *
-	 * @private
-	 * @param {*} value The value to add to the cache.
-	 */
-	function cachePush(value) {
-	  var cache = this.cache,
-	      type = typeof value;
-	
-	  if (type == 'boolean' || value == null) {
-	    cache[value] = true;
-	  } else {
-	    if (type != 'number' && type != 'string') {
-	      type = 'object';
-	    }
-	    var key = type == 'number' ? value : keyPrefix + value,
-	        typeCache = cache[type] || (cache[type] = {});
-	
-	    if (type == 'object') {
-	      (typeCache[key] || (typeCache[key] = [])).push(value);
-	    } else {
-	      typeCache[key] = true;
-	    }
-	  }
-	}
-	
-	module.exports = cachePush;
-
-
-/***/ },
-/* 253 */
-/*!***************************************************************!*\
-  !*** ./~/fluxxor/~/lodash-node/modern/internals/getObject.js ***!
-  \***************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="node" -o ./modern/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	var objectPool = __webpack_require__(/*! ./objectPool */ 256);
-	
-	/**
-	 * Gets an object from the object pool or creates a new one if the pool is empty.
-	 *
-	 * @private
-	 * @returns {Object} The object from the pool.
-	 */
-	function getObject() {
-	  return objectPool.pop() || {
-	    'array': null,
-	    'cache': null,
-	    'criteria': null,
-	    'false': false,
-	    'index': 0,
-	    'null': false,
-	    'number': null,
-	    'object': null,
-	    'push': null,
-	    'string': null,
-	    'true': false,
-	    'undefined': false,
-	    'value': null
-	  };
-	}
-	
-	module.exports = getObject;
-
-
-/***/ },
-/* 254 */
-/*!***************************************************************!*\
-  !*** ./~/fluxxor/~/lodash-node/modern/internals/arrayPool.js ***!
-  \***************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="node" -o ./modern/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	
-	/** Used to pool arrays and objects used internally */
-	var arrayPool = [];
-	
-	module.exports = arrayPool;
-
-
-/***/ },
-/* 255 */
-/*!*****************************************************************!*\
-  !*** ./~/fluxxor/~/lodash-node/modern/internals/maxPoolSize.js ***!
-  \*****************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="node" -o ./modern/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	
-	/** Used as the max size of the `arrayPool` and `objectPool` */
-	var maxPoolSize = 40;
-	
-	module.exports = maxPoolSize;
-
-
-/***/ },
-/* 256 */
-/*!****************************************************************!*\
-  !*** ./~/fluxxor/~/lodash-node/modern/internals/objectPool.js ***!
-  \****************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="node" -o ./modern/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	
-	/** Used to pool arrays and objects used internally */
-	var objectPool = [];
-	
-	module.exports = objectPool;
-
-
-/***/ },
 /* 257 */
+/*!**************************************************************!*\
+  !*** ./~/fluxxor/~/lodash-node/modern/utilities/identity.js ***!
+  \**************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="node" -o ./modern/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	
+	/**
+	 * This method returns the first argument provided to it.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Utilities
+	 * @param {*} value Any value.
+	 * @returns {*} Returns `value`.
+	 * @example
+	 *
+	 * var object = { 'name': 'fred' };
+	 * _.identity(object) === object;
+	 * // => true
+	 */
+	function identity(value) {
+	  return value;
+	}
+	
+	module.exports = identity;
+
+
+/***/ },
+/* 258 */
 /*!**************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/utilities/property.js ***!
   \**************************************************************/
@@ -27027,43 +27074,6 @@
 	}
 	
 	module.exports = property;
-
-
-/***/ },
-/* 258 */
-/*!**************************************************************!*\
-  !*** ./~/fluxxor/~/lodash-node/modern/utilities/identity.js ***!
-  \**************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="node" -o ./modern/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	
-	/**
-	 * This method returns the first argument provided to it.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Utilities
-	 * @param {*} value Any value.
-	 * @returns {*} Returns `value`.
-	 * @example
-	 *
-	 * var object = { 'name': 'fred' };
-	 * _.identity(object) === object;
-	 * // => true
-	 */
-	function identity(value) {
-	  return value;
-	}
-	
-	module.exports = identity;
 
 
 /***/ },
@@ -27724,105 +27734,6 @@
 
 /***/ },
 /* 265 */
-/*!*********************************************************!*\
-  !*** ./~/fluxxor/~/lodash-node/modern/objects/forIn.js ***!
-  \*********************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="node" -o ./modern/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	var baseCreateCallback = __webpack_require__(/*! ../internals/baseCreateCallback */ 215),
-	    objectTypes = __webpack_require__(/*! ../internals/objectTypes */ 216);
-	
-	/**
-	 * Iterates over own and inherited enumerable properties of an object,
-	 * executing the callback for each property. The callback is bound to `thisArg`
-	 * and invoked with three arguments; (value, key, object). Callbacks may exit
-	 * iteration early by explicitly returning `false`.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @type Function
-	 * @category Objects
-	 * @param {Object} object The object to iterate over.
-	 * @param {Function} [callback=identity] The function called per iteration.
-	 * @param {*} [thisArg] The `this` binding of `callback`.
-	 * @returns {Object} Returns `object`.
-	 * @example
-	 *
-	 * function Shape() {
-	 *   this.x = 0;
-	 *   this.y = 0;
-	 * }
-	 *
-	 * Shape.prototype.move = function(x, y) {
-	 *   this.x += x;
-	 *   this.y += y;
-	 * };
-	 *
-	 * _.forIn(new Shape, function(value, key) {
-	 *   console.log(key);
-	 * });
-	 * // => logs 'x', 'y', and 'move' (property order is not guaranteed across environments)
-	 */
-	var forIn = function(collection, callback, thisArg) {
-	  var index, iterable = collection, result = iterable;
-	  if (!iterable) return result;
-	  if (!objectTypes[typeof iterable]) return result;
-	  callback = callback && typeof thisArg == 'undefined' ? callback : baseCreateCallback(callback, thisArg, 3);
-	    for (index in iterable) {
-	      if (callback(iterable[index], index, collection) === false) return result;
-	    }
-	  return result
-	};
-	
-	module.exports = forIn;
-
-
-/***/ },
-/* 266 */
-/*!**************************************************************!*\
-  !*** ./~/fluxxor/~/lodash-node/modern/objects/isFunction.js ***!
-  \**************************************************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
-	 * Build: `lodash modularize modern exports="node" -o ./modern/`
-	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
-	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
-	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
-	 * Available under MIT license <http://lodash.com/license>
-	 */
-	
-	/**
-	 * Checks if `value` is a function.
-	 *
-	 * @static
-	 * @memberOf _
-	 * @category Objects
-	 * @param {*} value The value to check.
-	 * @returns {boolean} Returns `true` if the `value` is a function, else `false`.
-	 * @example
-	 *
-	 * _.isFunction(_);
-	 * // => true
-	 */
-	function isFunction(value) {
-	  return typeof value == 'function';
-	}
-	
-	module.exports = isFunction;
-
-
-/***/ },
-/* 267 */
 /*!*******************************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/internals/createWrapper.js ***!
   \*******************************************************************/
@@ -27838,8 +27749,8 @@
 	 */
 	var baseBind = __webpack_require__(/*! ./baseBind */ 275),
 	    baseCreateWrapper = __webpack_require__(/*! ./baseCreateWrapper */ 276),
-	    isFunction = __webpack_require__(/*! ../objects/isFunction */ 266),
-	    slice = __webpack_require__(/*! ./slice */ 250);
+	    isFunction = __webpack_require__(/*! ../objects/isFunction */ 268),
+	    slice = __webpack_require__(/*! ./slice */ 246);
 	
 	/**
 	 * Used for `Array` method references.
@@ -27937,7 +27848,7 @@
 
 
 /***/ },
-/* 268 */
+/* 266 */
 /*!**********************************************************!*\
   !*** ./~/fluxxor/~/lodash-node/modern/utilities/noop.js ***!
   \**********************************************************/
@@ -27969,6 +27880,105 @@
 	}
 	
 	module.exports = noop;
+
+
+/***/ },
+/* 267 */
+/*!*********************************************************!*\
+  !*** ./~/fluxxor/~/lodash-node/modern/objects/forIn.js ***!
+  \*********************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="node" -o ./modern/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	var baseCreateCallback = __webpack_require__(/*! ../internals/baseCreateCallback */ 214),
+	    objectTypes = __webpack_require__(/*! ../internals/objectTypes */ 215);
+	
+	/**
+	 * Iterates over own and inherited enumerable properties of an object,
+	 * executing the callback for each property. The callback is bound to `thisArg`
+	 * and invoked with three arguments; (value, key, object). Callbacks may exit
+	 * iteration early by explicitly returning `false`.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @type Function
+	 * @category Objects
+	 * @param {Object} object The object to iterate over.
+	 * @param {Function} [callback=identity] The function called per iteration.
+	 * @param {*} [thisArg] The `this` binding of `callback`.
+	 * @returns {Object} Returns `object`.
+	 * @example
+	 *
+	 * function Shape() {
+	 *   this.x = 0;
+	 *   this.y = 0;
+	 * }
+	 *
+	 * Shape.prototype.move = function(x, y) {
+	 *   this.x += x;
+	 *   this.y += y;
+	 * };
+	 *
+	 * _.forIn(new Shape, function(value, key) {
+	 *   console.log(key);
+	 * });
+	 * // => logs 'x', 'y', and 'move' (property order is not guaranteed across environments)
+	 */
+	var forIn = function(collection, callback, thisArg) {
+	  var index, iterable = collection, result = iterable;
+	  if (!iterable) return result;
+	  if (!objectTypes[typeof iterable]) return result;
+	  callback = callback && typeof thisArg == 'undefined' ? callback : baseCreateCallback(callback, thisArg, 3);
+	    for (index in iterable) {
+	      if (callback(iterable[index], index, collection) === false) return result;
+	    }
+	  return result
+	};
+	
+	module.exports = forIn;
+
+
+/***/ },
+/* 268 */
+/*!**************************************************************!*\
+  !*** ./~/fluxxor/~/lodash-node/modern/objects/isFunction.js ***!
+  \**************************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Lo-Dash 2.4.1 (Custom Build) <http://lodash.com/>
+	 * Build: `lodash modularize modern exports="node" -o ./modern/`
+	 * Copyright 2012-2013 The Dojo Foundation <http://dojofoundation.org/>
+	 * Based on Underscore.js 1.5.2 <http://underscorejs.org/LICENSE>
+	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 * Available under MIT license <http://lodash.com/license>
+	 */
+	
+	/**
+	 * Checks if `value` is a function.
+	 *
+	 * @static
+	 * @memberOf _
+	 * @category Objects
+	 * @param {*} value The value to check.
+	 * @returns {boolean} Returns `true` if the `value` is a function, else `false`.
+	 * @example
+	 *
+	 * _.isFunction(_);
+	 * // => true
+	 */
+	function isFunction(value) {
+	  return typeof value == 'function';
+	}
+	
+	module.exports = isFunction;
 
 
 /***/ },
@@ -29691,8 +29701,8 @@
 	 */
 	var baseCreate = __webpack_require__(/*! ./baseCreate */ 278),
 	    isObject = __webpack_require__(/*! ../objects/isObject */ 209),
-	    setBindData = __webpack_require__(/*! ./setBindData */ 247),
-	    slice = __webpack_require__(/*! ./slice */ 250);
+	    setBindData = __webpack_require__(/*! ./setBindData */ 248),
+	    slice = __webpack_require__(/*! ./slice */ 246);
 	
 	/**
 	 * Used for `Array` method references.
@@ -29762,8 +29772,8 @@
 	 */
 	var baseCreate = __webpack_require__(/*! ./baseCreate */ 278),
 	    isObject = __webpack_require__(/*! ../objects/isObject */ 209),
-	    setBindData = __webpack_require__(/*! ./setBindData */ 247),
-	    slice = __webpack_require__(/*! ./slice */ 250);
+	    setBindData = __webpack_require__(/*! ./setBindData */ 248),
+	    slice = __webpack_require__(/*! ./slice */ 246);
 	
 	/**
 	 * Used for `Array` method references.
@@ -29947,9 +29957,9 @@
 	 * Copyright 2009-2013 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 	 * Available under MIT license <http://lodash.com/license>
 	 */
-	var isNative = __webpack_require__(/*! ./isNative */ 217),
+	var isNative = __webpack_require__(/*! ./isNative */ 216),
 	    isObject = __webpack_require__(/*! ../objects/isObject */ 209),
-	    noop = __webpack_require__(/*! ../utilities/noop */ 268);
+	    noop = __webpack_require__(/*! ../utilities/noop */ 266);
 	
 	/* Native method shortcuts for methods with the same name as other `lodash` methods */
 	var nativeCreate = isNative(nativeCreate = Object.create) && nativeCreate;
