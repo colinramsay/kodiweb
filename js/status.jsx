@@ -2,10 +2,11 @@
 var Controls = require('./controls'),
     React = require('react'),
     Fluxxor = require("fluxxor"),
-    FluxChildMixin = Fluxxor.FluxChildMixin(React);
+    FluxChildMixin = Fluxxor.FluxChildMixin(React),
+    StoreWatchMixin = Fluxxor.StoreWatchMixin;
 
 module.exports = React.createClass({
-    mixins: [FluxChildMixin],
+    mixins: [FluxChildMixin, StoreWatchMixin("statusStore")],
 
     componentDidMount: function() {
         setInterval(this.getFlux().actions.getPlaylist, 5000);
@@ -37,11 +38,16 @@ module.exports = React.createClass({
     },
 
 
+    getStateFromFlux: function() {
+        return this.getFlux().store("statusStore").getState();
+    },
+
+
     render: function() {
         var time = '',
             nowPlayingTxt = 'Nothing Playing...',
-            track = this.props.currentTrack,
-            nowPlaying = this.props.nowPlaying;
+            track = this.state.currentTrack,
+            nowPlaying = this.state.nowPlaying;
 
         if(track && track.title) {
             var artist = track.artist.length > 0 ? track.artist[0] : 'Unknown Artist';
@@ -52,6 +58,6 @@ module.exports = React.createClass({
             time = this.msToTime(this.getMillisecondsFromTime(nowPlaying.time)) + '/' + this.msToTime(this.getMillisecondsFromTime(nowPlaying.maxTime));
         }
 
-        return <section className="status">{nowPlayingTxt} {time} <Controls isPlaying={this.props.isPlaying} /></section>
+        return <section className="status">{nowPlayingTxt} {time} <Controls isPlaying={this.state.isPlaying} /></section>
     }
 });

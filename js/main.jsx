@@ -2,6 +2,7 @@
 
 var React = require('react'),
     AlbumStore = require('./store'),
+    StatusStore = require('./status-store'),
     actions = require('./actions'),
     Fluxxor = require('fluxxor'),
     Application = require('./application'),
@@ -12,14 +13,14 @@ var Route = Router.Route;
 var Routes = Router.Routes;
 var DefaultRoute = Router.DefaultRoute;
     
-var flux = new Fluxxor.Flux({ albumStore: new AlbumStore() }, actions);
+var flux = new Fluxxor.Flux({ albumStore: new AlbumStore(), statusStore: new StatusStore() }, actions);
 
 function onError(error) {
     console.error(error);
 }
 
 var routes = (
-  <Routes onTransitionError={onError}>
+  <Routes>
     <Route handler={Application} flux={flux}>
       <DefaultRoute handler={Albums}/>
     </Route>

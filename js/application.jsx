@@ -5,17 +5,13 @@ var React = require('react'),
     Status = require('./status'),
     Loading = require('./loading'),
     Menu = require('./menu'),
-    FluxMixin = Fluxxor.FluxMixin(React),
-    StoreWatchMixin = Fluxxor.StoreWatchMixin;
+    FluxMixin = Fluxxor.FluxMixin(React);
 
 require('../css/main.css');
 
 module.exports = React.createClass({
-    mixins: [FluxMixin, StoreWatchMixin("albumStore")],
+    mixins: [FluxMixin],
 
-    getStateFromFlux: function() {
-        return this.getFlux().store("albumStore").getState();
-    },
     
     componentDidMount: function() {     
         this.getFlux().actions.initialize();
@@ -23,10 +19,10 @@ module.exports = React.createClass({
 
 
     render: function() {
-        var active = this.props.activeRouteHandler({albums: this.state.albums});
+        var active = this.props.activeRouteHandler();
         return <div>
-            <Loading loading={this.state.loading} />
-            <Status currentTrack={this.state.currentTrack} nowPlaying={this.state.nowPlaying} isPlaying={this.state.isPlaying} />
+            <Loading />
+            <Status />
             {active}
             <Menu />
         </div>
