@@ -5,11 +5,14 @@ module.exports = {
     playAlbum: function(albumId) {
 
         this.dispatch(constants.PLAY_ALBUM, albumId);
-        
+        this.dispatch(constants.START_LOADING, 'Loading album...');
+
         albumId = parseInt(albumId);
 
         var afterAdd = function() {
-            this.kodi.Player.Open({ item: { playlistid: 0, position: 0 }});
+            this.kodi.Player.Open({ item: { playlistid: 0, position: 0 }}, function() {
+                this.dispatch(constants.END_LOADING);
+            }.bind(this));
         }.bind(this);
 
         var afterClear = function() {
@@ -22,6 +25,7 @@ module.exports = {
 
     getAlbums: function() {
         this.dispatch(constants.GET_ALBUMS);
+        this.dispatch(constants.START_LOADING, 'Fetching albums...');
 
         this.kodi.AudioLibrary.GetAlbums({
                 "limits":{"start":0},
@@ -29,9 +33,11 @@ module.exports = {
                 "sort":{"method":"artist"}
         }, function(payload) {
             this.dispatch(constants.GET_ALBUMS_SUCCESS, payload);
+            this.dispatch(constants.END_LOADING);
         }.bind(this),
             function(payload) {
                 this.dispatch(constants.GET_ALBUMS_FAILURE, payload);
+                this.dispatch(constants.END_LOADING);
             }.bind(this)
         );
     }

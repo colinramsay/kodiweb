@@ -5,20 +5,39 @@ module.exports = Fluxxor.createStore({
     initialize: function() {
         this.currentTrack = {};
         this.nowPlaying = {};
+        this.isLoading = false;
 
         this.bindActions(
             constants.UPDATE_STATUS, this.onUpdateStatus,
             constants.PAUSE, this.onUpdateStatus,
-            constants.PLAY, this.onUpdateStatus
+            constants.PLAY, this.onUpdateStatus,
+            constants.START_LOADING, this.onStartLoading,
+            constants.END_LOADING, this.onEndLoading
         );
     },
     
+
+    onStartLoading: function(payload) {
+        this.isLoading = true;
+        this.loadingMsg = payload;
+        this.emit('change');
+    },
+
+
+    onEndLoading: function() {
+        delete this.loadingMsg;
+        this.isLoading = false;
+        this.emit('change');
+    },
+
 
     getState: function() {
         return {
             nowPlaying: this.nowPlaying,
             currentTrack: this.currentTrack,
-            isPlaying: this.isPlaying
+            isPlaying: this.isPlaying,
+            isLoading: this.isLoading,
+            loadingMsg: this.loadingMsg
         }
     },
 

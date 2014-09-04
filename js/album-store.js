@@ -4,7 +4,6 @@ var constants = require('./constants'),
 module.exports = Fluxxor.createStore({
     initialize: function() {
         this.albums = [];
-        this.loading = false;
         
         this.bindActions(
             constants.PLAY_ALBUM, this.onPlayAlbum,
@@ -30,21 +29,18 @@ module.exports = Fluxxor.createStore({
 
 
     onGetAlbums: function() {
-        this.loading = true;
         delete this.errorMessage;
         this.emit('change');
     },
 
 
     onGetAlbumsFailure: function(payload) {
-        this.loading = false;
         this.errorMessage = payload;
         this.emit('change');
     },
 
 
     onGetAlbumsSuccess: function(payload) {
-        this.loading = false;
         this.albums = payload.albums;
         this.emit('change');
     }
