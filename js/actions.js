@@ -62,7 +62,7 @@ module.exports = {
             this.kodi.Playlist.GetItems(
                 {"playlistid":0,"properties":["title","album","artist","duration"]},
                 function(payload) {
-                    var store = this.flux.store("albumStore");
+                    var store = this.flux.store("statusStore");
 
                     if(payload.items) {
                         this.dispatch(constants.UPDATE_STATUS, {
