@@ -6,14 +6,24 @@ module.exports = Fluxxor.createStore({
         this.currentTrack = {};
         this.nowPlaying = {};
         this.isLoading = false;
+        this.isMuted = false;
+        this.volume = 50;
 
         this.bindActions(
+            constants.UPDATE_VOLUME, this.onUpdateVolume,
             constants.UPDATE_STATUS, this.onUpdateStatus,
             constants.PAUSE, this.onUpdateStatus,
             constants.PLAY, this.onUpdateStatus,
             constants.START_LOADING, this.onStartLoading,
             constants.END_LOADING, this.onEndLoading
         );
+    },
+
+
+    onUpdateVolume: function(payload) {
+        this.volume = payload.volume;
+        this.isMuted = payload.muted;
+        this.emit('change');
     },
     
 

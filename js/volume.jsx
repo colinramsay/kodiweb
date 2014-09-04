@@ -2,18 +2,33 @@
 
 var React = require('react');
     Fluxxor = require('fluxxor'),
-    FluxChildMixin = Fluxxor.FluxChildMixin(React);
+    FluxChildMixin = Fluxxor.FluxChildMixin(React),
+    StoreWatchMixin = Fluxxor.StoreWatchMixin;
 
 module.exports = React.createClass({
-    mixins: [FluxChildMixin],
+    mixins: [FluxChildMixin, StoreWatchMixin('status')],
 
-	getInitialState: function() {
+    componentDidMount: function() {
+        setInterval(this.getFlux().actions.status.getAppProperties, 5000);
+    },
+
+	getStateFromFlux: function() {
+        var store = this.getFlux().store('status');
+
 		return {
-			volume: 0
+			volume: store.volume,
+            isMuted: store.isMuted
 		}
 	},
 
+    onChange: function(event) {
+
+    },
+
 	render: function() {
-		return <input min="0" max="100" type="range" />
+		return <div>
+            <p>{this.state.isMuted ? 'muted' : 'unmuted'}</p>
+            <input min="0" max="100" type="range" onChange={this.onChange} value={this.state.volume} />
+        </div>
 	}
 });

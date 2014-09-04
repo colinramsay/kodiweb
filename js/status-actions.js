@@ -1,6 +1,15 @@
 var constants = require('./constants');
 
 module.exports = {
+
+    getAppProperties: function() {
+        if(this.kodi.Application) {
+            this.kodi.Application.GetProperties({properties: ['volume', 'muted']}, function(payload) {
+                this.dispatch(constants.UPDATE_VOLUME, payload);
+            }.bind(this));
+        }
+    },
+
     getPlaylist: function() {
         if(this.kodi.Playlist) {
             this.kodi.Playlist.GetItems(
