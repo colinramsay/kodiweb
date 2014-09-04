@@ -5,17 +5,17 @@ var React = require('react'),
     StoreWatchMixin = Fluxxor.StoreWatchMixin;
 
 module.exports = React.createClass({
-    mixins: [FluxChildMixin, StoreWatchMixin("albumStore")],
+    mixins: [FluxChildMixin, StoreWatchMixin("album")],
 
     onAlbumClick: function(event) {
         var albumId = event.currentTarget.getAttribute('data-album-id');
-        this.getFlux().actions.playAlbum(albumId);
+        this.getFlux().actions.album.playAlbum(albumId);
     },
 
 
     getStateFromFlux: function() {
         return {
-            albums: this.getFlux().store("albumStore").getState().albums
+            albums: this.getFlux().store("album").getState().albums
         }
     },
 

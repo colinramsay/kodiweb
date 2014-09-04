@@ -8,7 +8,7 @@ module.exports = React.createClass({
     mixins: [FluxChildMixin],
 
     onClick: function() {
-        this.getFlux().actions[this.props.isPlaying ? 'pause' : 'play']();
+        this.getFlux().actions.control[this.props.isPlaying ? 'pause' : 'play']();
     },
 
     render: function() {

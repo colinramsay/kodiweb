@@ -14,7 +14,7 @@ module.exports = React.createClass({
 
     
     componentDidMount: function() {     
-        this.getFlux().actions.initialize();
+        this.getFlux().actions.control.initialize();
     },
 
 
