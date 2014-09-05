@@ -10,6 +10,7 @@ module.exports = Fluxxor.createStore({
         this.volume = 50;
 
         this.bindActions(
+            constants.VOLUME_CHANGED, this.onVolumeChanged,
             constants.UPDATE_VOLUME, this.onUpdateVolume,
             constants.UPDATE_STATUS, this.onUpdateStatus,
             constants.PAUSE, this.onUpdateStatus,
@@ -19,6 +20,11 @@ module.exports = Fluxxor.createStore({
         );
     },
 
+
+    onVolumeChanged: function(payload) {
+        this.volume = payload;
+        this.emit('change');
+    },
 
     onUpdateVolume: function(payload) {
         this.volume = payload.volume;

@@ -13,6 +13,11 @@ module.exports = {
         });
     },
 
+    setVolume: function(vol) {
+        this.kodi.Application.SetVolume({volume: parseInt(vol)}, function(payload) {
+            this.dispatch(constants.VOLUME_CHANGED, payload);
+        }.bind(this));
+    },
 
     pause: function() {
         this.dispatch(constants.PAUSE, { speed: 0 });
