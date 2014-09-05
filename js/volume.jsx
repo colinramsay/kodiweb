@@ -37,9 +37,14 @@ module.exports = React.createClass({
         this.setState({volume: vol});
     },
 
+    onMuteClick: function(event) {
+        this.stopMonitoring();
+        this.getFlux().actions.control.setMute(!this.state.isMuted);
+    },
+
 	render: function() {
 		return <div>
-            <p>{this.state.isMuted ? 'muted' : 'unmuted'}</p>
+            <button type="button" onClick={this.onMuteClick}>{this.state.isMuted ? 'unmute' : 'mute'}</button>
             <input min="0" max="100" type="range" step="1" onMouseDown={this.stopMonitoring} onMouseUp={this.startMonitoring} onChange={this.onChange} value={this.state.volume} />
         </div>
 	}

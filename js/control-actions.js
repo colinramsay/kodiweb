@@ -13,6 +13,10 @@ module.exports = {
         });
     },
 
+    setMute: function(mute) {
+        this.kodi.setMute(mute);
+    },
+
     setVolume: function(vol) {
         this.kodi.Application.SetVolume({volume: parseInt(vol)}, function(payload) {
             this.dispatch(constants.VOLUME_CHANGED, payload);
