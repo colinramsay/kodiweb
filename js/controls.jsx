@@ -4,6 +4,8 @@ var React = require('react'),
     FluxChildMixin = Fluxxor.FluxChildMixin(React),
     Volume = require('./volume');
 
+require('../css/controls.css');
+
 module.exports = React.createClass({
     mixins: [FluxChildMixin],
 
@@ -12,7 +14,7 @@ module.exports = React.createClass({
     },
 
     render: function() {
-        var txt = this.props.isPlaying ? 'Pause' : 'Play';
-        return <div><button onClick={this.onClick}>{txt}</button><Volume /></div>
+        var txt = this.props.isPlaying ? 'pause' : 'play';
+        return <div className="controls"><button onClick={this.onClick}><span className={'fa fa-' + txt}></span></button><Volume /></div>
     }
 });

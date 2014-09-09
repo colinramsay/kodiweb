@@ -43,8 +43,9 @@ module.exports = React.createClass({
     },
 
 	render: function() {
+        var icon = this.state.isMuted ? 'down' : 'up';
 		return <div>
-            <button type="button" onClick={this.onMuteClick}>{this.state.isMuted ? 'unmute' : 'mute'}</button>
+            <button type="button" onClick={this.onMuteClick}><span className={'fa fa-volume-' + icon}></span></button>
             <input min="0" max="100" type="range" step="1" onMouseDown={this.stopMonitoring} onMouseUp={this.startMonitoring} onChange={this.onChange} value={this.state.volume} />
         </div>
 	}

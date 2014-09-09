@@ -1,0 +1,10 @@
+.controls {
+	width: 300px;
+	position: fixed;
+	top: 15px;
+	right: 20px;
+}
+
+.controls button, .controls input {
+	float: right;
+}
