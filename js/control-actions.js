@@ -14,7 +14,13 @@ module.exports = {
     },
 
     setMute: function(mute) {
-        this.kodi.setMute(mute);
+        console.debug('Setting muted to ' + mute);
+        
+        this.dispatch(constants.MUTED, mute);
+
+        this.kodi.setMute(mute, null, function() {
+            this.dispatch(constants.MUTE_ERROR, mute);
+        });
     },
 
     setVolume: function(vol) {

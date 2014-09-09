@@ -10,6 +10,8 @@ module.exports = Fluxxor.createStore({
         this.volume = 50;
 
         this.bindActions(
+            constants.MUTED, this.onMuted,
+            constants.MUTE_ERROR, this.onMuteError,
             constants.VOLUME_CHANGED, this.onVolumeChanged,
             constants.UPDATE_VOLUME, this.onUpdateVolume,
             constants.UPDATE_STATUS, this.onUpdateStatus,
@@ -18,6 +20,17 @@ module.exports = Fluxxor.createStore({
             constants.START_LOADING, this.onStartLoading,
             constants.END_LOADING, this.onEndLoading
         );
+    },
+
+    onMuted: function(mute) {
+        this.isMuted = mute;
+        this.emit('change');
+    },
+
+
+    onMuteError: function(mute) {
+        this.isMuted = mute;
+        this.emit('change');
     },
 
 
