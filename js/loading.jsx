@@ -28,7 +28,7 @@ module.exports = React.createClass({
         var loading = null;
 
         if(this.state.isLoading) {
-            loading = <div className="loadingContainer"><p>{this.state.message}</p><div className="loading"></div></div>
+            loading = <div className="loadingContainer"><div className="loading"></div><p>{this.state.message}</p></div>
         }
 
         return loading

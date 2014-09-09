@@ -8,22 +8,26 @@
 .loadingContainer {
   color: white;
   z-index: 1000;
+  position: fixed;
+  padding: 10px 20px;
+  background-color: rgba(0, 0, 0, 0.8);
+  bottom: 0;
+  left: 0;
+  border-top-right-radius: 4px;
 }
 
 .loadingContainer p {
-  position: fixed;
-  top: 10px;
-  right: 60px;
-  text-align: right;
+  margin: 4px 0 4px 15px;
+  float: left;
+  color: #DDD;
+  font-size: 14px;
 }
 
 .loading {
   z-index: 100;
   width: 24px;
   height: 24px;
-  position: fixed;
-  top: 20px;
-  right: 20px;
+  float: left;
 }
 
 .loading:before {
