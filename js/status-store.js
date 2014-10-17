@@ -1,6 +1,5 @@
 var constants = require('./constants'),
-    Fluxxor = require('fluxxor'),
-    _ = require('lodash-node');
+    Fluxxor = require('fluxxor');
 
 module.exports = Fluxxor.createStore({
     initialize: function() {
@@ -16,6 +15,7 @@ module.exports = Fluxxor.createStore({
             constants.VOLUME_CHANGED, this.onVolumeChanged,
             constants.UPDATE_VOLUME, this.onUpdateVolume,
             constants.UPDATE_STATUS, this.onUpdateStatus,
+            constants.UPDATE_CURRENT_TRACK, this.onUpdateCurrentTrack,
             constants.PAUSE, this.onUpdateStatus,
             constants.PLAY, this.onUpdateStatus,
             constants.START_LOADING, this.onStartLoading,
@@ -71,16 +71,25 @@ module.exports = Fluxxor.createStore({
         }
     },
 
-    onUpdateStatus: function(payload) {
-        _.extend(this, payload);
 
-        if(payload.nowPlaying) {
-            if(_.isNumber(payload.nowPlaying.speed)) {
-                this.isPlaying = payload.nowPlaying.speed > 0;
-            } else {
-                this.isPlaying = false;
-            }
+    onUpdateCurrentTrack: function(currentTrack) {
+        this.currentTrack = currentTrack;
+    },
+
+
+    onUpdateStatus: function(payload) {
+
+        this.time = payload.time;
+        this.maxTime = payload.totaltime;
+        this.currentPlaylistPosition = payload.position;
+        this.speed = payload.speed;
+
+        if(payload.speed) {
+            this.isPlaying = payload.speed > 0;
+        } else {
+            this.isPlaying = false;
         }
+
         this.emit('change');
     }
 });

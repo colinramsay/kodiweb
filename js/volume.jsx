@@ -31,9 +31,7 @@ module.exports = React.createClass({
 	},
 
     onChange: function(event) {
-        var vol = event.target.value;
-        Flux.actions.control.setVolume(vol);
-        this.setState({volume: vol});
+        Flux.actions.control.setVolume(event.target.value);
     },
 
     onMuteClick: function(event) {

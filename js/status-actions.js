@@ -18,9 +18,8 @@ module.exports = {
                     var store = this.flux.store("status");
 
                     if(payload.items) {
-                        this.dispatch(constants.UPDATE_STATUS, {
-                            currentTrack: payload.items[store.nowPlaying.currentPlaylistPosition]
-                        });
+                        var currentTrack = payload.items[store.nowPlaying.currentPlaylistPosition];
+                        this.dispatch(constants.UPDATE_CURRENT_TRACK, currentTrack);
                     }
                 }.bind(this)
             );
@@ -36,11 +35,11 @@ module.exports = {
     
 
     onGetPlayerProperties: function(data) {
-        this.dispatch(constants.UPDATE_STATUS, { nowPlaying: {
+        this.dispatch(constants.UPDATE_STATUS, {
             time: data.time,
             maxTime: data.totaltime,
             currentPlaylistPosition: data.position,
             speed: data.speed
-        }});
+        });
     } 
 };

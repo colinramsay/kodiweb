@@ -1,7 +1,6 @@
 /** @jsx React.DOM */
 
 var React = require('react'),
-    Fluxxor = require('fluxxor'),
     Status = require('./status'),
     Loading = require('./loading'),
     Menu = require('./menu'),
