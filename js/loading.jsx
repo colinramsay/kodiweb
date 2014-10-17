@@ -1,22 +1,21 @@
 /** @jsx React.DOM */
 
 var React = require('react'),
-    Fluxxor = require("fluxxor"),
-    FluxChildMixin = Fluxxor.FluxChildMixin(React),
-    StoreWatchMixin = Fluxxor.StoreWatchMixin;
+    Flux = require('./flux'),
+    StoreWatchMixin = require("./store-watch-mixin");
 
 require('../css/loading.css');
 
 module.exports = React.createClass({
 
-    mixins: [FluxChildMixin, StoreWatchMixin("status")],
+    mixins: [StoreWatchMixin("status")],
 
     shouldComponentUpdate: function(nextProps, nextState) {
         return nextState.isLoading !== this.state.isLoading;
     },
 
     getStateFromFlux: function() {
-        var store = this.getFlux().store("status").getState();
+        var store = Flux.store("status").getState();
 
         return {
             isLoading: store.isLoading,

@@ -1,16 +1,15 @@
 /** @jsx React.DOM */
 var Controls = require('./controls'),
     React = require('react'),
-    Fluxxor = require("fluxxor"),
-    FluxChildMixin = Fluxxor.FluxChildMixin(React),
-    StoreWatchMixin = Fluxxor.StoreWatchMixin;
+    Flux = require('./flux'),
+    StoreWatchMixin = require('./store-watch-mixin');
 
 module.exports = React.createClass({
-    mixins: [FluxChildMixin, StoreWatchMixin("status")],
+    mixins: [StoreWatchMixin("status")],
 
     componentDidMount: function() {
-        setInterval(this.getFlux().actions.status.getPlaylist, 5000);
-        setInterval(this.getFlux().actions.status.getPlayerProperties, 1000);
+        setInterval(Flux.actions.status.getPlaylist, 5000);
+        setInterval(Flux.actions.status.getPlayerProperties, 1000);
     },
 
 
@@ -39,7 +38,7 @@ module.exports = React.createClass({
 
 
     getStateFromFlux: function() {
-        return this.getFlux().store("status").getState();
+        return Flux.store("status").getState();
     },
 
 

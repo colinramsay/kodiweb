@@ -5,16 +5,14 @@ var React = require('react'),
     Status = require('./status'),
     Loading = require('./loading'),
     Menu = require('./menu'),
-    FluxMixin = Fluxxor.FluxMixin(React);
+    Flux = require('./flux');
 
 require('../css/main.css');
 
 module.exports = React.createClass({
-    mixins: [FluxMixin],
-
     
     componentDidMount: function() {     
-        this.getFlux().actions.control.initialize();
+        Flux.actions.control.initialize();
     },
 
 

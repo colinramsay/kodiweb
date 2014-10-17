@@ -1,12 +1,11 @@
 /** @jsx React.DOM */
 
 var React = require('react');
-    Fluxxor = require('fluxxor'),
-    FluxChildMixin = Fluxxor.FluxChildMixin(React),
-    StoreWatchMixin = Fluxxor.StoreWatchMixin;
+    Flux = require('./flux'),
+    StoreWatchMixin = require('./store-watch-mixin');
 
 module.exports = React.createClass({
-    mixins: [FluxChildMixin, StoreWatchMixin('status')],
+    mixins: [StoreWatchMixin('status')],
 
     componentDidMount: function() {
         this.startMonitoring();
@@ -14,7 +13,7 @@ module.exports = React.createClass({
 
     startMonitoring: function() {
         console.debug('Volume monitoring started.');
-        this.monitorInterval = setInterval(this.getFlux().actions.status.getAppProperties, 5000);
+        this.monitorInterval = setInterval(Flux.actions.status.getAppProperties, 5000);
     },
 
     stopMonitoring: function() {
@@ -23,7 +22,7 @@ module.exports = React.createClass({
     },
 
 	getStateFromFlux: function() {
-        var store = this.getFlux().store('status');
+        var store = Flux.store('status');
 
 		return {
 			volume: store.volume,
@@ -33,13 +32,13 @@ module.exports = React.createClass({
 
     onChange: function(event) {
         var vol = event.target.value;
-        this.getFlux().actions.control.setVolume(vol);
+        Flux.actions.control.setVolume(vol);
         this.setState({volume: vol});
     },
 
     onMuteClick: function(event) {
         this.stopMonitoring();
-        this.getFlux().actions.control.setMute(!this.state.isMuted);
+        Flux.actions.control.setMute(!this.state.isMuted);
     },
 
 	render: function() {

@@ -1,16 +1,14 @@
 /** @jsx React.DOM */
 var React = require('react'),
-    Fluxxor = require('fluxxor'),
-    FluxChildMixin = Fluxxor.FluxChildMixin(React),
+    Flux = require('./flux'),
     Volume = require('./volume');
 
 require('../css/controls.css');
 
 module.exports = React.createClass({
-    mixins: [FluxChildMixin],
 
     onClick: function() {
-        this.getFlux().actions.control[this.props.isPlaying ? 'pause' : 'play']();
+        Flux.actions.control[this.props.isPlaying ? 'pause' : 'play']();
     },
 
     render: function() {

@@ -1,20 +1,19 @@
 /** @jsx React.DOM */
 var React = require('react'),
-    Fluxxor = require("fluxxor"),
-    FluxChildMixin = Fluxxor.FluxChildMixin(React),
-    StoreWatchMixin = Fluxxor.StoreWatchMixin;
+    Flux = require('./flux'),
+    StoreWatchMixin = require("./store-watch-mixin");
 
 module.exports = React.createClass({
-    mixins: [FluxChildMixin, StoreWatchMixin("album")],
+    mixins: [StoreWatchMixin("album")],
 
     onAlbumClick: function(event) {
         var albumId = event.currentTarget.getAttribute('data-album-id');
-        this.getFlux().actions.album.playAlbum(albumId);
+        Flux.actions.album.playAlbum(albumId);
     },
 
 
     getStateFromFlux: function() {
-        var store = this.getFlux().store("album").getState();
+        var store = Flux.store("album").getState();
 
         return {
             albums: store.albums,
