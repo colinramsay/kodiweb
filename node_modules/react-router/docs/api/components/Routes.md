@@ -10,8 +10,8 @@ Props
 
 ### `location`
 
-One of `"hash"`, `"history"` or a user defined location implementation,
-defaults to `"hash"`.
+One of `"hash"`, `"history"`, `'none'`, or a user defined location
+implementation, defaults to `"hash"`.
 
 `"hash"` includes `#/` in the url and works without a server, if you use
 `history` your server will need to support it.
@@ -23,34 +23,31 @@ the same urls and can share them.
 
 See also: [user supplied locations][Location].
 
-### `preserveScrollPosition`
+### `scrollBehavior`
 
-If `true`, the router will not scroll the window up globally when any
-route is transitioned to. Defaults to `false`. When `false`, the
-`<Route/>` gets to decide whether or not to scroll on transition.
+Determines the scrolling behavior after route transitions.
 
-### `onAbortedTransition`
+One of:
 
-A function called when any transition is aborted.
+- `'browser'` - default, imitates what browsers do in a typical
+  page reload scenario: preserves scroll positions when using the back
+  button, scrolls up when you come to a new route by clicking a link,
+  etc.
 
-### `onActiveStateChange`
+- `'scrollToTop'` - scrolls the window up all the time.
 
-A function called when the active routes change.
+- `'none'` - doesn't do anything (you should probably do something about
+  that).
 
-#### signature
+### `onError`
 
-`function(nextState)`
-
-### `onTransitionError`
-
-A function called when a transition has an error.
+Called when a transition throws an error.
 
 #### signature
 
 `function(error)`
 
-Example
--------
+#### Example
 
 ```jsx
 function onError(error) {
