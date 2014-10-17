@@ -1,5 +1,6 @@
 var constants = require('./constants'),
-    Fluxxor = require('fluxxor');
+    Fluxxor = require('fluxxor'),
+    _ = require('lodash-node');
 
 module.exports = Fluxxor.createStore({
     initialize: function() {
@@ -71,10 +72,10 @@ module.exports = Fluxxor.createStore({
     },
 
     onUpdateStatus: function(payload) {
-        jQuery.extend(this, payload);
+        _.extend(this, payload);
 
         if(payload.nowPlaying) {
-            if($.isNumeric(payload.nowPlaying.speed)) {
+            if(_.isNumber(payload.nowPlaying.speed)) {
                 this.isPlaying = payload.nowPlaying.speed > 0;
             } else {
                 this.isPlaying = false;
