@@ -63,7 +63,11 @@ module.exports = Fluxxor.createStore({
 
     getState: function() {
         return {
-            nowPlaying: this.nowPlaying,
+            time: this.time,
+            maxTime: this.maxTime,
+            currentPlaylistPosition: this.position,
+            speed: this.speed,
+
             currentTrack: this.currentTrack,
             isPlaying: this.isPlaying,
             isLoading: this.isLoading,
@@ -80,7 +84,7 @@ module.exports = Fluxxor.createStore({
     onUpdateStatus: function(payload) {
 
         this.time = payload.time;
-        this.maxTime = payload.totaltime;
+        this.maxTime = payload.maxTime;
         this.currentPlaylistPosition = payload.position;
         this.speed = payload.speed;
 

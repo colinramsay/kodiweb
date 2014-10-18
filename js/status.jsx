@@ -45,16 +45,15 @@ module.exports = React.createClass({
     render: function() {
         var time = '',
             nowPlayingTxt = 'Nothing Playing...',
-            track = this.state.currentTrack,
-            nowPlaying = this.state.nowPlaying;
+            track = this.state.currentTrack;
 
         if(track && track.title) {
             var artist = track.artist.length > 0 ? track.artist[0] : 'Unknown Artist';
             nowPlayingTxt = artist + ' - ' + track.album + ' - ' + track.title;
         }
 
-        if(nowPlaying && nowPlaying.time) {
-            time = this.msToTime(this.getMillisecondsFromTime(nowPlaying.time)) + '/' + this.msToTime(this.getMillisecondsFromTime(nowPlaying.maxTime));
+        if(this.state.time) {
+            time = this.msToTime(this.getMillisecondsFromTime(this.state.time)) + '/' + this.msToTime(this.getMillisecondsFromTime(this.state.maxTime));
         }
 
         return <section className="status">{nowPlayingTxt} {time} <Controls isPlaying={this.state.isPlaying} /></section>
