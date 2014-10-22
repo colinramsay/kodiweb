@@ -18,7 +18,7 @@ module.exports = {
                     var store = this.flux.store("status");
 
                     if(payload.items) {
-                        var currentTrack = payload.items[store.nowPlaying.currentPlaylistPosition];
+                        var currentTrack = payload.items[store.currentPlaylistPosition];
                         this.dispatch(constants.UPDATE_CURRENT_TRACK, currentTrack);
                     }
                 }.bind(this)
