@@ -8,3 +8,20 @@
 .controls button, .controls input {
 	float: right;
 }
+
+.searchbar {
+    color: #CCC;
+    background-color: rgba(0, 0, 0, 0.8);
+    position: fixed;
+    z-index: 10;
+    width: 100%;
+    margin: 0;
+    font-size: 14px;
+    bottom: 0;
+    text-align: right;
+}
+
+.searchbar input {
+    margin: 20px;
+    font-size: 16px;
+}

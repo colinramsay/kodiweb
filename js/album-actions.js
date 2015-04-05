@@ -2,6 +2,10 @@ var constants = require('./constants');
 
 module.exports = {
 
+    search: function(terms) {
+        this.dispatch(constants.SEARCH_ALBUMS, terms);
+    },
+
     playAlbum: function(albumId) {
 
         this.dispatch(constants.PLAY_ALBUM, albumId);
