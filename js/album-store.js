@@ -37,7 +37,10 @@ module.exports = Fluxxor.createStore({
         console.log('Filtering albums by %s.', term);
 
         this.albums = _.filter(this.unfilteredAlbums, function(album) {
-            return regex.test(album.title) || album.artist[0] ? regex.test(album.artist[0]) : false;
+            var isAlbumMatch = regex.test(album.title);
+            var isArtistMatch = album.artist[0] ? regex.test(album.artist[0]) : false;
+
+            return isAlbumMatch || isArtistMatch
         });
 
         console.log('Albums now: ', this.albums);
